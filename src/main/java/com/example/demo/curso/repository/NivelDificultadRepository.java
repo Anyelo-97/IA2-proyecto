@@ -1,6 +1,6 @@
 package com.example.demo.curso.repository;
 
-import com.example.demo.curso.domain.NivelDificultad;
+import com.example.demo.curso.model.NivelDificultad;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

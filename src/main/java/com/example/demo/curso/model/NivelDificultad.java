@@ -1,4 +1,4 @@
-package com.example.demo.curso.domain;
+package com.example.demo.curso.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

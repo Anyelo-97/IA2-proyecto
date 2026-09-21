@@ -1,10 +1,10 @@
 package com.example.demo.curso.service.impl;
 
-import com.example.demo.common.exception.BusinessRuleException;
-import com.example.demo.common.exception.ResourceNotFoundException;
-import com.example.demo.curso.domain.Categoria;
-import com.example.demo.curso.domain.Curso;
-import com.example.demo.curso.domain.NivelDificultad;
+import com.example.demo.curso.exception.BusinessRuleException;
+import com.example.demo.curso.exception.ResourceNotFoundException;
+import com.example.demo.curso.model.Categoria;
+import com.example.demo.curso.model.Curso;
+import com.example.demo.curso.model.NivelDificultad;
 import com.example.demo.curso.dto.request.CursoRequest;
 import com.example.demo.curso.dto.response.CursoResponse;
 import com.example.demo.curso.repository.CategoriaRepository;
@@ -48,7 +48,7 @@ public class CursoServiceImpl implements CursoService {
         if (id == null || id.trim().isEmpty()) {
             id = UUID.randomUUID().toString();
         } else if (cursoRepository.existsById(id)) {
-            throw new BusinessRuleException(String.format("Ya existe un curso con el identificador '%s'.", id));
+            throw new BusinessRuleException(String.format("Ya existe un curso con el id '%s'.", id));
         }
 
         Curso curso = Curso.builder()

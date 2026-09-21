@@ -1,4 +1,4 @@
-package com.example.demo.common.exception;
+package com.example.demo.curso.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
