@@ -1,0 +1,232 @@
+{
+  "name": "RutaIA - Sincronizacion de Cursos (Qdrant)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "curso-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b1b11b11-1111-4111-8111-111111111111",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "curso-sync-webhook-id"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.accion }}",
+                    "rightValue": "DESACTIVAR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DESACTIVAR"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "b2b22b22-2222-4222-8222-222222222222",
+      "name": "Verificar Accion",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.QDRANT_HOST || 'http://qdrant:6333' }}/collections/cursos/points/delete",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"points\": [\n    \"{{ $('Webhook').item.json.body.cursoId }}\"\n  ]\n}",
+        "options": {}
+      },
+      "id": "b3b33b33-3333-4333-8333-333333333333",
+      "name": "Eliminar de Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.OPENROUTER_API_KEY || 'TU_OPENROUTER_API_KEY' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $('Webhook').item.json.body.nombre }}. {{ $('Webhook').item.json.body.descripcion }}. Categoria: {{ $('Webhook').item.json.body.categoriaNombre }}. Nivel: {{ $('Webhook').item.json.body.nivelNombre }}.\"\n}",
+        "options": {}
+      },
+      "id": "b4b44b44-4444-4444-8444-444444444444",
+      "name": "Generar Embedding OpenRouter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $env.QDRANT_HOST || 'http://qdrant:6333' }}/collections/cursos/points",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"points\": [\n    {\n      \"id\": \"{{ $('Webhook').item.json.body.cursoId }}\",\n      \"vector\": {{ JSON.stringify($json.data[0].embedding) }},\n      \"payload\": {\n        \"cursoId\": \"{{ $('Webhook').item.json.body.cursoId }}\",\n        \"nombre\": \"{{ $('Webhook').item.json.body.nombre }}\",\n        \"descripcion\": \"{{ $('Webhook').item.json.body.descripcion }}\",\n        \"categoriaNombre\": \"{{ $('Webhook').item.json.body.categoriaNombre }}\",\n        \"nivelNombre\": \"{{ $('Webhook').item.json.body.nivelNombre }}\",\n        \"duracion\": {{ $('Webhook').item.json.body.duracion }},\n        \"estado\": {{ $('Webhook').item.json.body.estado }}\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "b5b55b55-5555-4555-8555-555555555555",
+      "name": "Upsert en Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"accion\": \"{{ $('Webhook').item.json.body.accion }}\",\n  \"cursoId\": \"{{ $('Webhook').item.json.body.cursoId }}\",\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b6b66b66-6666-4666-8666-666666666666",
+      "name": "Responder a Spring Boot",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1160,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Verificar Accion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Accion": {
+      "main": [
+        [
+          {
+            "node": "Eliminar de Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generar Embedding OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eliminar de Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Responder a Spring Boot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Embedding OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Upsert en Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert en Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Responder a Spring Boot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

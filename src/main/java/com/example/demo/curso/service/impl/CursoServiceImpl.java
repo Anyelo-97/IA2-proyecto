@@ -30,6 +30,7 @@ public class CursoServiceImpl implements CursoService {
     private final CategoriaRepository categoriaRepository;
     private final NivelDificultadRepository nivelRepository;
     private final CursoMapper cursoMapper;
+    private final com.example.demo.n8n.N8nSyncService n8nSyncService;
 
     @Override
     @Transactional
@@ -64,7 +65,9 @@ public class CursoServiceImpl implements CursoService {
                 .build();
 
         Curso guardado = cursoRepository.save(curso);
-        return cursoMapper.entityToDto(guardado);
+        CursoResponse response = cursoMapper.entityToDto(guardado);
+        n8nSyncService.sincronizarCurso(response, "CREAR");
+        return response;
     }
 
     @Override
@@ -116,7 +119,9 @@ public class CursoServiceImpl implements CursoService {
         }
 
         Curso actualizado = cursoRepository.save(curso);
-        return cursoMapper.entityToDto(actualizado);
+        CursoResponse response = cursoMapper.entityToDto(actualizado);
+        n8nSyncService.sincronizarCurso(response, "ACTUALIZAR");
+        return response;
     }
 
     @Override
@@ -128,6 +133,7 @@ public class CursoServiceImpl implements CursoService {
 
         curso.setEstado(false);
         cursoRepository.save(curso);
+        n8nSyncService.sincronizarCurso(cursoMapper.entityToDto(curso), "DESACTIVAR");
     }
 
     @Override
