@@ -1,16 +1,17 @@
 package com.example.demo.curso.service.impl;
 
-import com.example.demo.curso.exception.BusinessRuleException;
-import com.example.demo.curso.exception.ResourceNotFoundException;
+import com.example.demo.curso.dto.request.CursoRequest;
+import com.example.demo.curso.dto.response.CursoResponse;
+import com.example.demo.curso.mapper.CursoMapper;
 import com.example.demo.curso.model.Categoria;
 import com.example.demo.curso.model.Curso;
 import com.example.demo.curso.model.NivelDificultad;
-import com.example.demo.curso.dto.request.CursoRequest;
-import com.example.demo.curso.dto.response.CursoResponse;
 import com.example.demo.curso.repository.CategoriaRepository;
 import com.example.demo.curso.repository.CursoRepository;
 import com.example.demo.curso.repository.NivelDificultadRepository;
 import com.example.demo.curso.service.CursoService;
+import com.example.demo.exception.BusinessRuleException;
+import com.example.demo.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class CursoServiceImpl implements CursoService {
     private final CursoRepository cursoRepository;
     private final CategoriaRepository categoriaRepository;
     private final NivelDificultadRepository nivelRepository;
+    private final CursoMapper cursoMapper;
 
     @Override
     @Transactional
@@ -62,7 +64,7 @@ public class CursoServiceImpl implements CursoService {
                 .build();
 
         Curso guardado = cursoRepository.save(curso);
-        return mapToResponse(guardado);
+        return cursoMapper.entityToDto(guardado);
     }
 
     @Override
@@ -70,7 +72,7 @@ public class CursoServiceImpl implements CursoService {
     public CursoResponse obtenerCursoPorId(String id) {
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Curso", id));
-        return mapToResponse(curso);
+        return cursoMapper.entityToDto(curso);
     }
 
     @Override
@@ -81,7 +83,7 @@ public class CursoServiceImpl implements CursoService {
                 : cursoRepository.findAll();
 
         return cursos.stream()
-                .map(this::mapToResponse)
+                .map(cursoMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 
@@ -114,7 +116,7 @@ public class CursoServiceImpl implements CursoService {
         }
 
         Curso actualizado = cursoRepository.save(curso);
-        return mapToResponse(actualizado);
+        return cursoMapper.entityToDto(actualizado);
     }
 
     @Override
@@ -133,21 +135,7 @@ public class CursoServiceImpl implements CursoService {
     public List<CursoResponse> obtenerCatalogo(String categoriaId, String nivelId) {
         List<Curso> cursos = cursoRepository.findCatalogoActivo(categoriaId, nivelId);
         return cursos.stream()
-                .map(this::mapToResponse)
+                .map(cursoMapper::entityToDto)
                 .collect(Collectors.toList());
-    }
-
-    private CursoResponse mapToResponse(Curso curso) {
-        return CursoResponse.builder()
-                .id(curso.getId())
-                .nombre(curso.getNombre())
-                .descripcion(curso.getDescripcion())
-                .categoriaId(curso.getCategoria() != null ? curso.getCategoria().getId() : null)
-                .categoriaNombre(curso.getCategoria() != null ? curso.getCategoria().getNombre() : null)
-                .nivelId(curso.getNivel() != null ? curso.getNivel().getId() : null)
-                .nivelNombre(curso.getNivel() != null ? curso.getNivel().getNombre() : null)
-                .duracion(curso.getDuracion())
-                .estado(curso.getEstado())
-                .build();
     }
 }
