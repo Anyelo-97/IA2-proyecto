@@ -61,7 +61,7 @@ public class CursoServiceImpl implements CursoService {
                 .categoria(categoria)
                 .nivel(nivel)
                 .duracion(request.getDuracion())
-                .estado(request.getEstado() != null ? request.getEstado() : true)
+                .estado(request.getEstado() == null || request.getEstado())
                 .build();
 
         Curso guardado = cursoRepository.save(curso);
