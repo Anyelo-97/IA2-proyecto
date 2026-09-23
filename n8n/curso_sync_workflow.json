@@ -1,23 +1,5 @@
 {
-  "name": "RutaIA - Sincronizacion de Cursos (Qdrant)",
   "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "curso-sync",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "id": "b1b11b11-1111-4111-8111-111111111111",
-      "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        200,
-        300
-      ],
-      "webhookId": "curso-sync-webhook-id"
-    },
     {
       "parameters": {
         "rules": {
@@ -27,7 +9,8 @@
                 "options": {
                   "caseSensitive": true,
                   "leftValue": "",
-                  "typeValidation": "strict"
+                  "typeValidation": "strict",
+                  "version": 2
                 },
                 "conditions": [
                   {
@@ -36,7 +19,8 @@
                     "operator": {
                       "type": "string",
                       "operation": "equals"
-                    }
+                    },
+                    "id": "e84136e8-49d5-44b6-bdf7-e80bd783e23a"
                   }
                 ],
                 "combinator": "and"
@@ -50,19 +34,19 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "b2b22b22-2222-4222-8222-222222222222",
+      "id": "d5537792-b717-4000-bae1-da14a1d93c9b",
       "name": "Verificar Accion",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        420,
-        300
+        -1664,
+        544
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.QDRANT_HOST || 'http://qdrant:6333' }}/collections/cursos/points/delete",
+        "url": "=http://qdrant:6333/collections/cursos/points/delete",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -74,29 +58,27 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"points\": [\n    \"{{ $('Webhook').item.json.body.cursoId }}\"\n  ]\n}",
+        "jsonBody": "={\n  \"points\": [\n    \"{{ $('Webhook1').item.json.body.cursoId }}\"\n  ]\n}",
         "options": {}
       },
-      "id": "b3b33b33-3333-4333-8333-333333333333",
+      "id": "9e62ebce-67cc-4d1a-a4a4-8c55d4e4052d",
       "name": "Eliminar de Qdrant",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        680,
-        180
+        -1280,
+        416
       ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "https://openrouter.ai/api/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $env.OPENROUTER_API_KEY || 'TU_OPENROUTER_API_KEY' }}"
-            },
             {
               "name": "Content-Type",
               "value": "application/json"
@@ -105,22 +87,28 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $('Webhook').item.json.body.nombre }}. {{ $('Webhook').item.json.body.descripcion }}. Categoria: {{ $('Webhook').item.json.body.categoriaNombre }}. Nivel: {{ $('Webhook').item.json.body.nivelNombre }}.\"\n}",
+        "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $('Webhook1').item.json.body.nombre }}. {{ $('Webhook1').item.json.body.descripcion }}. Categoria: {{ $('Webhook1').item.json.body.categoriaNombre }}. Nivel: {{ $('Webhook1').item.json.body.nivelNombre }}.\"\n}",
         "options": {}
       },
-      "id": "b4b44b44-4444-4444-8444-444444444444",
+      "id": "aa29f676-a8dd-4d4d-80d3-47c5b1bdf8f9",
       "name": "Generar Embedding OpenRouter",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        680,
-        420
-      ]
+        -1392,
+        656
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "vmwMJXLFIb4nd00z",
+          "name": "Header Auth account 2"
+        }
+      }
     },
     {
       "parameters": {
         "method": "PUT",
-        "url": "={{ $env.QDRANT_HOST || 'http://qdrant:6333' }}/collections/cursos/points",
+        "url": "=http://qdrant:6333/collections/cursos/points",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -132,48 +120,61 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"points\": [\n    {\n      \"id\": \"{{ $('Webhook').item.json.body.cursoId }}\",\n      \"vector\": {{ JSON.stringify($json.data[0].embedding) }},\n      \"payload\": {\n        \"cursoId\": \"{{ $('Webhook').item.json.body.cursoId }}\",\n        \"nombre\": \"{{ $('Webhook').item.json.body.nombre }}\",\n        \"descripcion\": \"{{ $('Webhook').item.json.body.descripcion }}\",\n        \"categoriaNombre\": \"{{ $('Webhook').item.json.body.categoriaNombre }}\",\n        \"nivelNombre\": \"{{ $('Webhook').item.json.body.nivelNombre }}\",\n        \"duracion\": {{ $('Webhook').item.json.body.duracion }},\n        \"estado\": {{ $('Webhook').item.json.body.estado }}\n      }\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"points\": [\n    {\n      \"id\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n      \"vector\": {{ JSON.stringify($json.data[0].embedding) }},\n      \"payload\": {\n        \"cursoId\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n        \"nombre\": \"{{ $('Webhook1').item.json.body.nombre }}\",\n        \"descripcion\": \"{{ $('Webhook1').item.json.body.descripcion }}\",\n        \"categoriaNombre\": \"{{ $('Webhook1').item.json.body.categoriaNombre }}\",\n        \"nivelNombre\": \"{{ $('Webhook1').item.json.body.nivelNombre }}\",\n        \"duracion\": {{ $('Webhook1').item.json.body.duracion }},\n        \"estado\": {{ $('Webhook1').item.json.body.estado }}\n      }\n    }\n  ]\n}",
         "options": {}
       },
-      "id": "b5b55b55-5555-4555-8555-555555555555",
+      "id": "c95bd053-4709-464a-a156-154f220f385a",
       "name": "Upsert en Qdrant",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        920,
-        420
+        -1152,
+        656
       ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"ok\": true,\n  \"accion\": \"{{ $('Webhook').item.json.body.accion }}\",\n  \"cursoId\": \"{{ $('Webhook').item.json.body.cursoId }}\",\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "responseBody": "={\n  \"ok\": true,\n  \"accion\": \"{{ $('Webhook1').item.json.body.accion }}\",\n  \"cursoId\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
         "options": {
           "responseCode": 200
         }
       },
-      "id": "b6b66b66-6666-4666-8666-666666666666",
+      "id": "8f8c0d98-e004-4eaa-8b1a-b008f8a5d6ff",
       "name": "Responder a Spring Boot",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1160,
-        300
+        -912,
+        544
       ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "curso-sync",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6d50d97b-f075-41d9-a41b-6c1d062606a9",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1872,
+        544
+      ],
+      "webhookId": "curso-sync-webhook-id",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "cmfDcS0p5zRHEyHc",
+          "name": "Header Auth account"
+        }
+      }
     }
   ],
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Verificar Accion",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Verificar Accion": {
       "main": [
         [
@@ -224,9 +225,22 @@
           }
         ]
       ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Verificar Accion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "settings": {
-    "executionOrder": "v1"
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e178e1de6857b6a7faf535a8b0a74af83d930683d763dd9ee064bf9fcf80faa"
   }
 }

@@ -35,7 +35,6 @@ public class N8nSyncService {
             payload.put("descripcion", curso.getDescripcion());
             payload.put("categoriaNombre", curso.getCategoriaNombre());
             payload.put("nivelNombre", curso.getNivelNombre());
-
             payload.put("duracion", curso.getDuracion());
             payload.put("estado", curso.getEstado());
 
@@ -48,7 +47,7 @@ public class N8nSyncService {
             log.info("Curso sincronizado exitosamente con n8n: {} - {}", accion, curso.getId());
         } catch (Exception e) {
             log.error("Error al sincronizar curso con n8n [accion={}, cursoId={}]: {}", accion, curso.getId(), e.getMessage());
-            // No se relanza la excepción para no romper la operación en base de datos (fire-and-forget)
+            // (fire-and-forget)
         }
     }
 }

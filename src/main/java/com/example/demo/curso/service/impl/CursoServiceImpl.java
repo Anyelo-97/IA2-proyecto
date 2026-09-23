@@ -12,6 +12,7 @@ import com.example.demo.curso.repository.NivelDificultadRepository;
 import com.example.demo.curso.service.CursoService;
 import com.example.demo.exception.BusinessRuleException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.n8n.N8nSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class CursoServiceImpl implements CursoService {
     private final CategoriaRepository categoriaRepository;
     private final NivelDificultadRepository nivelRepository;
     private final CursoMapper cursoMapper;
-    private final com.example.demo.n8n.N8nSyncService n8nSyncService;
+    private final N8nSyncService n8nSyncService;
 
     @Override
     @Transactional
