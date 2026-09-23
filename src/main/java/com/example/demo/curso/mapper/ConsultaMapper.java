@@ -22,11 +22,13 @@ public class ConsultaMapper {
 
     public Consulta requestToEntity(ConsultaRequest request) {
         if (request == null) return null;
-        return Consulta.builder()
-                .id(request.getId())
+        Consulta.ConsultaBuilder builder = Consulta.builder()
                 .estudiante(request.getEstudianteId() == null ? null :
                         new Estudiante(request.getEstudianteId(), null, null, null, null))
-                .pregunta(request.getPregunta())
-                .build();
+                .pregunta(request.getPregunta());
+        if (request.getId() != null) {
+            builder.id(request.getId());
+        }
+        return builder.build();
     }
 }

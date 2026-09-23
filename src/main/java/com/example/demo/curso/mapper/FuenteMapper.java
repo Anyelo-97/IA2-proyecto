@@ -23,7 +23,9 @@ public class FuenteMapper {
     public Fuente requestToEntity(FuenteRequest request) {
         if (request == null) return null;
         Fuente fuente = new Fuente();
-        fuente.setId(request.getId());
+        if (request.getId() != null) {
+            fuente.setId(request.getId());
+        }
         if (request.getRecomendacionId() != null) {
             Recomendacion recomendacion = new Recomendacion();
             recomendacion.setId(request.getRecomendacionId());

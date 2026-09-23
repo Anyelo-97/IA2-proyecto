@@ -22,10 +22,12 @@ public class RecomendacionMapper {
 
     public Recomendacion requestToEntity(RecomendacionRequest request) {
         if (request == null) return null;
-        Recomendacion recomendacion = Recomendacion.builder()
-                .id(request.getId())
-                .contenido(request.getContenido())
-                .build();
+        Recomendacion.RecomendacionBuilder builder = Recomendacion.builder()
+                .contenido(request.getContenido());
+        if (request.getId() != null) {
+            builder.id(request.getId());
+        }
+        Recomendacion recomendacion = builder.build();
         if (request.getConsultaId() != null) {
             Consulta consulta = new Consulta();
             consulta.setId(request.getConsultaId());

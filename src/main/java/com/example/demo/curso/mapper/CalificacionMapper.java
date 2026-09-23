@@ -24,7 +24,9 @@ public class CalificacionMapper {
     public Calificacion requestToEntity(CalificacionRequest request) {
         if (request == null) return null;
         Calificacion calificacion = new Calificacion();
-        calificacion.setId(request.getId());
+        if (request.getId() != null) {
+            calificacion.setId(request.getId());
+        }
         calificacion.setEstudiante(request.getEstudianteId() == null ? null : new Estudiante(request.getEstudianteId(), null, null, null, null));
         calificacion.setRecomendacion(request.getRecomendacionId() == null ? null : new Recomendacion());
         if (calificacion.getRecomendacion() != null) {
