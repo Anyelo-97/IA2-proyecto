@@ -1,5 +1,6 @@
 package com.example.demo.curso.mapper;
 
+import com.example.demo.curso.dto.request.CursoRequest;
 import com.example.demo.curso.dto.response.CursoResponse;
 import com.example.demo.curso.model.Curso;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,17 @@ public class CursoMapper {
                 .nivelNombre(curso.getNivel() != null ? curso.getNivel().getNombre() : null)
                 .duracion(curso.getDuracion())
                 .estado(curso.getEstado())
+                .build();
+    }
+
+    public Curso requestToEntity(CursoRequest request) {
+        if (request == null) return null;
+        return Curso.builder()
+                .id(request.getId())
+                .nombre(request.getNombre())
+                .descripcion(request.getDescripcion())
+                .duracion(request.getDuracion())
+                .estado(request.getEstado())
                 .build();
     }
 }
