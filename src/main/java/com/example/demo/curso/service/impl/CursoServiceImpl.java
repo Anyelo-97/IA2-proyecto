@@ -48,6 +48,7 @@ public class CursoServiceImpl implements CursoService {
             throw new BusinessRuleException("La duración del curso debe ser mayor que cero.");
         }
 
+        // Generar UUID si no se proporciona uno explícito
         String id = request.getId();
         if (id == null || id.trim().isEmpty()) {
             id = UUID.randomUUID().toString();
@@ -63,6 +64,8 @@ public class CursoServiceImpl implements CursoService {
         curso.setNivel(nivel);
         curso.setDuracion(request.getDuracion());
         curso.setEstado(request.getEstado() == null || request.getEstado());
+        curso.setModalidad(request.getModalidad().trim());
+        curso.setPrecio(request.getPrecio());
 
         Curso guardado = cursoRepository.save(curso);
         CursoResponse response = cursoMapper.entityToDto(guardado);
@@ -118,6 +121,9 @@ public class CursoServiceImpl implements CursoService {
             curso.setEstado(request.getEstado());
         }
 
+        curso.setModalidad(request.getModalidad().trim());
+        curso.setPrecio(request.getPrecio());
+
         Curso actualizado = cursoRepository.save(curso);
         CursoResponse response = cursoMapper.entityToDto(actualizado);
         n8nSyncService.sincronizarCurso(response, "ACTUALIZAR");
@@ -131,6 +137,7 @@ public class CursoServiceImpl implements CursoService {
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Curso", id));
 
+        // Desactivación lógica (soft delete)
         curso.setEstado(false);
         cursoRepository.save(curso);
         n8nSyncService.sincronizarCurso(cursoMapper.entityToDto(curso), "DESACTIVAR");

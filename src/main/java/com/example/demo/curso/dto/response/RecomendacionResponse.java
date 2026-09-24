@@ -5,15 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FuenteResponse {
+public class RecomendacionResponse {
 
     private String id;
-    private String recomendacionId;
-    private String cursoId;
-    private String cursoNombre;
-    private Double similitud;
+    private String consultaId;
+    private String contenido;
+    private LocalDateTime fecha;
+    private String estado;
 }

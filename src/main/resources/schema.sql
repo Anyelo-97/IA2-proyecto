@@ -46,6 +46,8 @@ CREATE TABLE IF NOT EXISTS curso (
     categoria_id VARCHAR(255) NOT NULL,
     nivel_id VARCHAR(255) NOT NULL,
     duracion INT NOT NULL,
+    modalidad VARCHAR(50) NOT NULL DEFAULT 'Virtual',
+    precio DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     estado BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT fk_curso_categoria
         FOREIGN KEY (categoria_id) REFERENCES categoria(id),
@@ -53,6 +55,8 @@ CREATE TABLE IF NOT EXISTS curso (
         FOREIGN KEY (nivel_id) REFERENCES nivel_dificultad(id),
     CONSTRAINT chk_curso_duracion
         CHECK (duracion > 0),
+    CONSTRAINT chk_curso_modalidad
+        CHECK (modalidad IN ('Virtual', 'Presencial', 'Híbrido')),
     INDEX idx_curso_estado (estado),
     INDEX idx_curso_categoria (categoria_id),
     INDEX idx_curso_nivel (nivel_id)

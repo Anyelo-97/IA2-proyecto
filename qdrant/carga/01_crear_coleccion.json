@@ -1,0 +1,49 @@
+// ========================================================
+// 1. Crear colección 'cursos' (dimensión 1536 Cosine)
+// ========================================================
+PUT collections/cursos
+{
+  "vectors": {
+    "size": 1536,
+    "distance": "Cosine"
+  }
+}
+
+// ========================================================
+// 2. Crear índices de filtrado en el payload
+// ========================================================
+
+// Índice para filtrar solo cursos activos (RF10)
+PUT collections/cursos/index
+{
+  "field_name": "estado",
+  "field_schema": "bool"
+}
+
+// Índice para filtros por categoría
+PUT collections/cursos/index
+{
+  "field_name": "categoriaNombre",
+  "field_schema": "keyword"
+}
+
+// Índice para filtros por nivel de dificultad
+PUT collections/cursos/index
+{
+  "field_name": "nivelNombre",
+  "field_schema": "keyword"
+}
+
+// Índice para filtros por modalidad (Virtual, Presencial, Híbrido)
+PUT collections/cursos/index
+{
+  "field_name": "modalidad",
+  "field_schema": "keyword"
+}
+
+// Índice para filtros y ordenación por precio
+PUT collections/cursos/index
+{
+  "field_name": "precio",
+  "field_schema": "float"
+}

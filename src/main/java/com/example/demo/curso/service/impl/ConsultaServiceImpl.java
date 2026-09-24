@@ -30,21 +30,17 @@ public class ConsultaServiceImpl implements ConsultaService {
     private final ConsultaRepository consultaRepository;
     private final ConsultaMapper consultaMapper;
     private final N8nQueryService n8nQueryService;
-    // Injected in commit 6: RecomendacionService recomendacionService
 
     @Override
     @Transactional
     public ConsultaConResultadoResponse crearConsulta(ConsultaRequest request) {
         log.info("Creando consulta para estudiante: {}", request.getEstudianteId());
 
-        // a) Validate pregunta is not blank (Jakarta already does this, but double check)
         if (request.getPregunta() == null || request.getPregunta().trim().isEmpty()) {
             throw new BusinessRuleException("La pregunta no puede estar vacía.");
         }
 
-        // b) // TODO: validate estudianteId exists when Estudiante entity is available
-
-        // c) Create Consulta with id=UUID, estado="Pendiente", fecha=LocalDateTime.now()
+        // TODO: Validar que estudianteId exista cuando la entidad Estudiante esté disponible
         Consulta consulta = new Consulta();
         consulta.setId(UUID.randomUUID().toString());
         consulta.setEstudianteId(request.getEstudianteId().trim());
@@ -52,12 +48,10 @@ public class ConsultaServiceImpl implements ConsultaService {
         consulta.setFecha(LocalDateTime.now());
         consulta.setEstado("Pendiente");
 
-        // d) Save to DB
         Consulta guardada = consultaRepository.save(consulta);
         log.info("Consulta creada exitosamente con ID: {}", guardada.getId());
 
-        // e) Return ConsultaConResultadoResponse with estado="Pendiente", null respuesta, empty fuentes
-        // (the n8n call + recommendation saving will be wired in commit 6 when RecomendacionService exists)
+        // TODO: Integrar llamada a n8n y persistencia de recomendación cuando el servicio esté disponible
         ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
         res.setConsultaId(guardada.getId());
         res.setPregunta(guardada.getPregunta());
@@ -80,15 +74,11 @@ public class ConsultaServiceImpl implements ConsultaService {
     public List<HistorialResponse> listarHistorial(String estudianteId) {
         log.info("Listando historial para estudiante: {}", estudianteId);
 
-        // a) Find all consultas for the estudiante, ordered by fecha desc
         List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaDesc(estudianteId);
 
-        // b) For each consulta, find its recomendacion and fuentes (if they exist)
-        // c) Map to HistorialResponse using ConsultaMapper.toHistorial()
-        // d) Return the list
         return consultas.stream()
                 .map(consulta -> {
-                    // TODO: When RecomendacionService is available in commit 6, fetch recomendacion and fuentes
+                    // TODO: Obtener recomendación y fuentes asociadas cuando RecomendacionService esté disponible
                     return consultaMapper.toHistorial(consulta, null, Collections.emptyList());
                 })
                 .collect(Collectors.toList());

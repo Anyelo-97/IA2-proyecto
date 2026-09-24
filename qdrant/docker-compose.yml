@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-rutaia
+    ports:
+      - "6333:6333"  # API REST HTTP
+      - "6334:6334"  # API gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - rutaia-network
+    restart: unless-stopped
+
+volumes:
+  qdrant_data:
+
+networks:
+  rutaia-network:
+    name: rutaia_default
+    driver: bridge

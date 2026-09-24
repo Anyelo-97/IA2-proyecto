@@ -36,6 +36,8 @@ public class N8nSyncService {
             payload.put("categoriaNombre", curso.getCategoriaNombre());
             payload.put("nivelNombre", curso.getNivelNombre());
             payload.put("duracion", curso.getDuracion());
+            payload.put("modalidad", curso.getModalidad());
+            payload.put("precio", curso.getPrecio());
             payload.put("estado", curso.getEstado());
 
             restClient.post()
@@ -47,7 +49,7 @@ public class N8nSyncService {
             log.info("Curso sincronizado exitosamente con n8n: {} - {}", accion, curso.getId());
         } catch (Exception e) {
             log.error("Error al sincronizar curso con n8n [accion={}, cursoId={}]: {}", accion, curso.getId(), e.getMessage());
-            // (fire-and-forget)
+            // No interrumpir la transacción en caso de fallo externo (fire-and-forget)
         }
     }
 }

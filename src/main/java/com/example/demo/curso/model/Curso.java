@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "curso")
 @Getter
@@ -40,6 +42,12 @@ public class Curso {
 
     @Column(name = "duracion", nullable = false)
     private Integer duracion;
+
+    @Column(name = "modalidad", length = 50, nullable = false)
+    private String modalidad;
+
+    @Column(name = "precio", nullable = false)
+    private BigDecimal precio;
 
     @Column(name = "estado", nullable = false)
     private Boolean estado = true;

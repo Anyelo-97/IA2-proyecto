@@ -1,91 +1,47 @@
-# RutaIA — Automatizaciones n8n y Base Vectorial Qdrant
+# Flujos de Automatización (n8n) - RutaIA
 
-Este directorio contiene los flujos de automatización para **n8n** y utilidades para la sincronización con **Spring Boot**, **OpenRouter** y **Qdrant**.
+Esta carpeta contiene los archivos JSON de los flujos de automatización en **n8n**, los cuales orquestan la comunicación entre la API REST (Spring Boot), la base de datos vectorial (Qdrant) y el modelo de Inteligencia Artificial (OpenRouter).
 
----
+## 📂 Archivos Disponibles
 
-## 1. Preparación de Qdrant (Paso único inicial)
-
-Antes de indexar cursos, crea la colección `cursos` con dimensión 1536 (`text-embedding-3-small` de OpenRouter) y distancia `Cosine`, además de sus índices de filtrado:
-
-### En la consola web de Qdrant (http://localhost:6333/dashboard -> Console):
-```http
-// 1. Crear colección
-PUT collections/cursos
-{
-  "vectors": {
-    "size": 1536,
-    "distance": "Cosine"
-  }
-}
-
-// 2. Índice para filtrar solo cursos activos (RF10)
-PUT collections/cursos/index
-{
-  "field_name": "estado",
-  "field_schema": "bool"
-}
-
-// 3. Índice para filtros por categoría
-PUT collections/cursos/index
-{
-  "field_name": "categoriaNombre",
-  "field_schema": "keyword"
-}
-
-// 4. Índice para filtros por nivel de dificultad
-PUT collections/cursos/index
-{
-  "field_name": "nivelNombre",
-  "field_schema": "keyword"
-}
-```
+1. **`curso_sync_workflow.json`**: Flujo de sincronización. Recibe notificaciones de Spring Boot cada vez que se crea, actualiza o desactiva un curso. Se encarga de generar el embedding del curso y guardarlo en Qdrant (o eliminarlo si se desactiva).
+2. **`rag_query_workflow.json`**: Pipeline de Generación Aumentada por Recuperación (RAG). Recibe la pregunta del estudiante, la vectoriza, busca similitudes en Qdrant (aplicando el umbral de similitud y filtrando cursos activos), inyecta el contexto en el LLM y devuelve la respuesta al backend.
+3. **`carga_inicial_qdrant_workflow.json`**: Flujo auxiliar utilizado para vectorizar masivamente el catálogo de cursos base.
 
 ---
 
-## 2. Carga Inicial de Cursos en Qdrant (RF05)
+## 🚀 Guía de Instalación y Configuración
 
-Tienes **dos opciones** para realizar la carga inicial de los 23 cursos semilla hacia Qdrant:
+Para poner en marcha estos flujos en tu entorno n8n, sigue estos pasos al pie de la letra:
 
-### Opción A: Mediante el flujo de n8n (`carga_inicial_qdrant_workflow.json`)
-1. En n8n, importa el archivo `n8n/carga_inicial_qdrant_workflow.json`.
-2. En el nodo **Generar Vector OpenRouter**, añade tu API key de OpenRouter.
-3. Haz clic en **Test Step** o **Execute Workflow** en el nodo disparador manual.
-4. El flujo consulta `GET http://host.docker.internal:8080/api/cursos?estado=true`, genera los embeddings e inserta los 23 cursos en Qdrant.
+### Paso 1: Importar los Workflows
+1. Abre n8n en tu navegador (por defecto: `http://localhost:5678`).
+2. Ve a la sección **Workflows** en el panel izquierdo y haz clic en **Add Workflow**.
+3. Haz clic en el botón de opciones `...` (arriba a la derecha) y selecciona **Import from File**.
+4. Selecciona y carga uno a uno los archivos `.json` de esta carpeta.
 
-### Opción B: Script directo en PowerShell (`cargar_qdrant.ps1`)
-Con Spring Boot corriendo en el puerto 8080 y Qdrant en el 6333:
-```powershell
-cd n8n
-.\cargar_qdrant.ps1 -OpenRouterKey "sk-or-v1-TU_CLAVE_AQUI"
-```
-El script creará automáticamente la colección, los índices, obtendrá los cursos desde Spring Boot y los indexará en lote en Qdrant.
+### Paso 2: Configurar las Credenciales de OpenRouter (IA)
+Ambos flujos principales se comunican con OpenRouter para generar embeddings y texto.
+1. Dentro del flujo, haz doble clic en los nodos que digan **OpenRouter (Embedding)** u **OpenRouter (LLM)**.
+2. En la sección *Credential for Header Auth*, crea una nueva credencial.
+3. Configúrala así:
+   * **Name**: `Authorization`
+   * **Value**: `Bearer TU_API_KEY_DE_OPENROUTER` (Reemplaza con tu token real, ej: `Bearer sk-or-v1-xxx...`)
+4. Guarda la credencial y asegúrate de que esté seleccionada en el nodo.
+
+### Paso 3: Configurar la Seguridad del Webhook (Solo para Sync)
+El flujo `curso_sync_workflow.json` está protegido para que solo Spring Boot pueda llamarlo.
+1. Haz doble clic en el nodo inicial **Webhook1**.
+2. En *Credential for Header Auth*, crea una nueva credencial:
+   * **Name**: `X-Webhook-Secret`
+   * **Value**: *(Escribe aquí el mismo texto que pusiste en tu archivo `application.properties` en Spring Boot bajo la variable `rutaia.n8n.webhook-secret`)*.
+3. Guarda y selecciona la credencial.
+
+### Paso 4: Activar los Flujos
+Para que los webhooks estén escuchando permanentemente las peticiones de Spring Boot:
+1. Guarda el flujo haciendo clic en el icono del disquete o **Save** (arriba a la derecha).
+2. En la esquina superior derecha, cambia el interruptor a **Active** (debe quedar en color verde).
+3. Asegúrate de repetir este paso tanto para el flujo de Sync como para el de RAG.
 
 ---
-
-## 3. Flujo: Sincronización Automática (`curso_sync_workflow.json`)
-
-Mantiene Qdrant actualizado en tiempo real cada vez que un administrador crea, actualiza o desactiva un curso desde Spring Boot.
-
-- **`CREAR` / `ACTUALIZAR`**: Genera el vector vía OpenRouter y hace upsert del punto en la colección `cursos` de Qdrant.
-- **`DESACTIVAR`**: Elimina el vector de Qdrant usando su `cursoId`.
-
-### Cómo importarlo en n8n:
-1. En n8n, importa `n8n/curso_sync_workflow.json`.
-2. Configura tu credencial de OpenRouter en el nodo correspondiente.
-3. Activa el workflow (**Active** toggle).
-4. El webhook escucha en `http://localhost:5678/webhook/curso-sync` (o la URL configurada en `application.properties`).
-
----
-
-## 4. Verificar datos en Qdrant
-
-Para comprobar que los cursos están almacenados con sus metadatos (payload):
-```http
-POST collections/cursos/points/scroll
-{
-  "limit": 10,
-  "with_payload": true,
-  "with_vector": false
-}
-```
+**Nota de Arquitectura:** Si n8n y Qdrant se están ejecutando en la misma red de Docker, n8n accederá a la base vectorial internamente mediante `http://qdrant:6333` (ya configurado en los nodos). La API de Java se comunicará con n8n apuntando a la URL pública de los webhooks (o mediante ngrok en entornos locales mixtos).

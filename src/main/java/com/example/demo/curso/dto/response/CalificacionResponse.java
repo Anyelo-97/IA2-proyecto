@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FuenteResponse {
+public class CalificacionResponse {
 
     private String id;
+    private String estudianteId;
     private String recomendacionId;
-    private String cursoId;
-    private String cursoNombre;
-    private Double similitud;
+    private Integer puntuacion;
+    private String comentario;
 }

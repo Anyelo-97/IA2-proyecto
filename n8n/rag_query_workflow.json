@@ -1,0 +1,142 @@
+{
+  "name": "RutaIA - Pipeline RAG Completo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rag-query",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook (Recibe Consulta)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model", "value": "text-embedding-3-small" },
+            { "name": "input", "value": "={{ $json.body.pregunta }}" }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer AQUI_TU_OPENROUTER_API_KEY" }
+          ]
+        }
+      },
+      "name": "OpenRouter (Embedding)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 200, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://qdrant:6333/collections/cursos/points/search",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "vector", "value": "={{ $json.data[0].embedding }}" },
+            { "name": "limit", "value": 5 },
+            { "name": "score_threshold", "value": 0.7 },
+            { "name": "with_payload", "value": true },
+            { "name": "filter", "value": "={{ { \"must\": [ { \"key\": \"estado\", \"match\": { \"value\": true } } ] } }}" }
+          ]
+        }
+      },
+      "name": "Qdrant (Búsqueda Vectorial)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 400, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.result.length > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "If (Supera Umbral 0.7)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 600, 300 ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"consultaId\": \"{{ $('Webhook (Recibe Consulta)').item.json.body.consultaId }}\",\n  \"respuesta\": \"Lo siento, no encontré cursos en nuestro catálogo actual que superen el umbral de similitud para tu búsqueda. ¿Podrías intentar reformular tu pregunta o revisar nuestras categorías?\",\n  \"estado\": \"Sin resultados\",\n  \"fuentes\": []\n}",
+        "options": {}
+      },
+      "name": "Respuesta (Sin Resultados)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [ 800, 500 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model", "value": "google/gemini-flash-1.5" },
+            {
+              "name": "messages",
+              "value": "={{ [{ role: 'system', content: 'Eres un asesor académico experto de RutaIA. Se te dará una lista de cursos de la institución y una pregunta de un alumno. \\n\\nREGLAS ESTRICTAS:\\n1. Usa SOLO la información proporcionada en el contexto JSON.\\n2. NUNCA inventes cursos, herramientas o datos.\\n3. Si la información es insuficiente, reconócelo explícitamente.\\n4. El estudiante tiene nivel: ' + $('Webhook (Recibe Consulta)').item.json.body.nivelExperiencia + ' y un área de interés general en: ' + $('Webhook (Recibe Consulta)').item.json.body.areaInteres + '.\\n5. Escribe una respuesta amigable, fundamentando por qué recomiendas cada curso del contexto.\\n\\nCONTEXTO DE CURSOS:\\n' + JSON.stringify($json.result.map(r => r.payload)) }, { role: 'user', content: $('Webhook (Recibe Consulta)').item.json.body.pregunta }] }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer AQUI_TU_OPENROUTER_API_KEY" }
+          ]
+        }
+      },
+      "name": "OpenRouter (LLM Generación)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 800, 150 ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"consultaId\": \"{{ $('Webhook (Recibe Consulta)').item.json.body.consultaId }}\",\n  \"respuesta\": \"{{ $json.choices[0].message.content }}\",\n  \"estado\": \"Respondida\",\n  \"fuentes\": {{ JSON.stringify($('Qdrant (Búsqueda Vectorial)').item.json.result.map(item => ({ cursoId: item.payload.id, similitud: item.score }))) }}\n}",
+        "options": {}
+      },
+      "name": "Respuesta (Exito RAG)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [ 1000, 150 ]
+    }
+  ],
+  "connections": {
+    "Webhook (Recibe Consulta)": {
+      "main": [ [ { "node": "OpenRouter (Embedding)", "type": "main", "index": 0 } ] ]
+    },
+    "OpenRouter (Embedding)": {
+      "main": [ [ { "node": "Qdrant (Búsqueda Vectorial)", "type": "main", "index": 0 } ] ]
+    },
+    "Qdrant (Búsqueda Vectorial)": {
+      "main": [ [ { "node": "If (Supera Umbral 0.7)", "type": "main", "index": 0 } ] ]
+    },
+    "If (Supera Umbral 0.7)": {
+      "main": [
+        [ { "node": "OpenRouter (LLM Generación)", "type": "main", "index": 0 } ],
+        [ { "node": "Respuesta (Sin Resultados)", "type": "main", "index": 0 } ]
+      ]
+    },
+    "OpenRouter (LLM Generación)": {
+      "main": [ [ { "node": "Respuesta (Exito RAG)", "type": "main", "index": 0 } ] ]
+    }
+  }
+}

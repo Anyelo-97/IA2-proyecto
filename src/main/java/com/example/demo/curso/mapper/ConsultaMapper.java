@@ -1,11 +1,14 @@
 package com.example.demo.curso.mapper;
 
+import com.example.demo.curso.dto.request.ConsultaRequest;
 import com.example.demo.curso.dto.response.ConsultaResponse;
 import com.example.demo.curso.dto.response.HistorialResponse;
 import com.example.demo.curso.model.Consulta;
 import com.example.demo.curso.model.Fuente;
 import com.example.demo.curso.model.Recomendacion;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,5 +58,15 @@ public class ConsultaMapper {
                 resumen,
                 cursosRecomendados
         );
+    }
+
+    public Consulta requestToEntity(ConsultaRequest request) {
+        if (request == null) return null;
+        Consulta consulta = new Consulta();
+        consulta.setEstudianteId(request.getEstudianteId());
+        consulta.setPregunta(request.getPregunta());
+        consulta.setFecha(LocalDateTime.now());
+        consulta.setEstado("Pendiente");
+        return consulta;
     }
 }

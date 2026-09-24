@@ -87,7 +87,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $('Webhook1').item.json.body.nombre }}. {{ $('Webhook1').item.json.body.descripcion }}. Categoria: {{ $('Webhook1').item.json.body.categoriaNombre }}. Nivel: {{ $('Webhook1').item.json.body.nivelNombre }}.\"\n}",
+        "jsonBody": "={\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"{{ $('Webhook1').item.json.body.nombre }}. {{ $('Webhook1').item.json.body.descripcion }}. Categoria: {{ $('Webhook1').item.json.body.categoriaNombre }}. Nivel: {{ $('Webhook1').item.json.body.nivelNombre }}. Modalidad: {{ $('Webhook1').item.json.body.modalidad }}. Precio: {{ $('Webhook1').item.json.body.precio }}.\"\n}",
         "options": {}
       },
       "id": "aa29f676-a8dd-4d4d-80d3-47c5b1bdf8f9",
@@ -120,7 +120,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"points\": [\n    {\n      \"id\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n      \"vector\": {{ JSON.stringify($json.data[0].embedding) }},\n      \"payload\": {\n        \"cursoId\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n        \"nombre\": \"{{ $('Webhook1').item.json.body.nombre }}\",\n        \"descripcion\": \"{{ $('Webhook1').item.json.body.descripcion }}\",\n        \"categoriaNombre\": \"{{ $('Webhook1').item.json.body.categoriaNombre }}\",\n        \"nivelNombre\": \"{{ $('Webhook1').item.json.body.nivelNombre }}\",\n        \"duracion\": {{ $('Webhook1').item.json.body.duracion }},\n        \"estado\": {{ $('Webhook1').item.json.body.estado }}\n      }\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"points\": [\n    {\n      \"id\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n      \"vector\": {{ JSON.stringify($json.data[0].embedding) }},\n      \"payload\": {\n        \"cursoId\": \"{{ $('Webhook1').item.json.body.cursoId }}\",\n        \"nombre\": \"{{ $('Webhook1').item.json.body.nombre }}\",\n        \"descripcion\": \"{{ $('Webhook1').item.json.body.descripcion }}\",\n        \"categoriaNombre\": \"{{ $('Webhook1').item.json.body.categoriaNombre }}\",\n        \"nivelNombre\": \"{{ $('Webhook1').item.json.body.nivelNombre }}\",\n        \"duracion\": {{ $('Webhook1').item.json.body.duracion }},\n        \"modalidad\": \"{{ $('Webhook1').item.json.body.modalidad }}\",\n        \"precio\": {{ $('Webhook1').item.json.body.precio }},\n        \"estado\": {{ $('Webhook1').item.json.body.estado }}\n      }\n    }\n  ]\n}",
         "options": {}
       },
       "id": "c95bd053-4709-464a-a156-154f220f385a",

@@ -9,11 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FuenteResponse {
+public class CategoriaResponse {
 
     private String id;
-    private String recomendacionId;
-    private String cursoId;
-    private String cursoNombre;
-    private Double similitud;
+    private String nombre;
 }
