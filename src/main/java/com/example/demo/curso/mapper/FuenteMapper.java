@@ -12,27 +12,31 @@ public class FuenteMapper {
 
     public FuenteResponse entityToDto(Fuente fuente) {
         if (fuente == null) return null;
-        return FuenteResponse.builder()
-                .id(fuente.getId())
-                .recomendacionId(fuente.getRecomendacion() != null ? fuente.getRecomendacion().getId() : null)
-                .cursoId(fuente.getCurso() != null ? fuente.getCurso().getId() : null)
-                .similitud(fuente.getSimilitud())
-                .build();
+        String recId = fuente.getRecomendacion() != null ? fuente.getRecomendacion().getId() : null;
+        String curId = fuente.getCurso() != null ? fuente.getCurso().getId() : null;
+        String curNombre = fuente.getCurso() != null ? fuente.getCurso().getNombre() : null;
+        return new FuenteResponse(
+                fuente.getId(),
+                recId,
+                curId,
+                curNombre,
+                fuente.getSimilitud()
+        );
     }
 
     public Fuente requestToEntity(FuenteRequest request) {
         if (request == null) return null;
         Fuente fuente = new Fuente();
-        if (request.getId() != null) {
-            fuente.setId(request.getId());
-        }
+        fuente.setId(request.getId());
         if (request.getRecomendacionId() != null) {
             Recomendacion recomendacion = new Recomendacion();
             recomendacion.setId(request.getRecomendacionId());
             fuente.setRecomendacion(recomendacion);
         }
         if (request.getCursoId() != null) {
-            fuente.setCurso(Curso.builder().id(request.getCursoId()).build());
+            Curso curso = new Curso();
+            curso.setId(request.getCursoId());
+            fuente.setCurso(curso);
         }
         fuente.setSimilitud(request.getSimilitud());
         return fuente;

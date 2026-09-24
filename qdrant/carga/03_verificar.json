@@ -1,0 +1,15 @@
+// ========================================================
+// 3. Verificar cursos cargados (Scroll query)
+// ========================================================
+POST collections/cursos/points/scroll
+{
+  "limit": 10,
+  "with_payload": true,
+  "with_vector": false
+}
+
+// Conteo total de puntos (debe retornar 23)
+POST collections/cursos/points/count
+{
+  "exact": true
+}

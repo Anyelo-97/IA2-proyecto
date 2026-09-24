@@ -10,17 +10,17 @@ public class CategoriaMapper {
 
     public CategoriaResponse entityToDto(Categoria categoria) {
         if (categoria == null) return null;
-        return CategoriaResponse.builder()
-                .id(categoria.getId())
-                .nombre(categoria.getNombre())
-                .build();
+        return new CategoriaResponse(
+                categoria.getId(),
+                categoria.getNombre()
+        );
     }
 
     public Categoria requestToEntity(CategoriaRequest request) {
         if (request == null) return null;
-        return Categoria.builder()
-                .id(request.getId())
-                .nombre(request.getNombre())
-                .build();
+        return new Categoria(
+                request.getId(),
+                request.getNombre()
+        );
     }
 }

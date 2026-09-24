@@ -10,11 +10,7 @@ public class UsuarioMapper {
 
     public UsuarioResponse entityToDto(Usuario usuario) {
         if (usuario == null) return null;
-        return UsuarioResponse.builder()
-                .id(usuario.getId())
-                .email(usuario.getEmail())
-                .rol(usuario.getRol())
-                .build();
+        return new UsuarioResponse(usuario.getId(), usuario.getEmail(), usuario.getRol());
     }
 
     public Usuario requestToEntity(UsuarioRequest request) {

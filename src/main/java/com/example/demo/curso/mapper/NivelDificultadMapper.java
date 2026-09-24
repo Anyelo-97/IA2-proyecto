@@ -10,17 +10,17 @@ public class NivelDificultadMapper {
 
     public NivelDificultadResponse entityToDto(NivelDificultad nivel) {
         if (nivel == null) return null;
-        return NivelDificultadResponse.builder()
-                .id(nivel.getId())
-                .nombre(nivel.getNombre())
-                .build();
+        return new NivelDificultadResponse(
+                nivel.getId(),
+                nivel.getNombre()
+        );
     }
 
     public NivelDificultad requestToEntity(NivelDificultadRequest request) {
         if (request == null) return null;
-        return NivelDificultad.builder()
-                .id(request.getId())
-                .nombre(request.getNombre())
-                .build();
+        return new NivelDificultad(
+                request.getId(),
+                request.getNombre()
+        );
     }
 }

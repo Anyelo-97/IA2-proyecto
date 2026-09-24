@@ -10,10 +10,10 @@ public class AdministradorMapper {
 
     public AdministradorResponse entityToDto(Administrador administrador) {
         if (administrador == null) return null;
-        return AdministradorResponse.builder()
-                .id(administrador.getId())
-                .nombre(administrador.getNombre())
-                .build();
+        return new AdministradorResponse(
+                administrador.getId(),
+                administrador.getNombre()
+        );
     }
 
     public Administrador requestToEntity(AdministradorRequest request) {

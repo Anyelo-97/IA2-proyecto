@@ -3,7 +3,6 @@ package com.example.demo.curso.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class UsuarioRequest {
 
     private String id;
@@ -22,7 +20,7 @@ public class UsuarioRequest {
     private String email;
 
     @NotBlank(message = "La contraseña no puede estar vacío")
-    @Size(max = 255, min = 8,message = "La contraseña debe tener minimo 8 caracteres y no puede superar los 255 caracteres")
+    @Size(max = 255, min = 8, message = "La contraseña debe tener minimo 8 caracteres y no puede superar los 255 caracteres")
     private String password;
 
     @NotBlank(message = "El rol no puede estar vacío")

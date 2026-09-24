@@ -12,6 +12,7 @@ import com.example.demo.curso.repository.NivelDificultadRepository;
 import com.example.demo.curso.service.CursoService;
 import com.example.demo.exception.BusinessRuleException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.n8n.N8nSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class CursoServiceImpl implements CursoService {
     private final CategoriaRepository categoriaRepository;
     private final NivelDificultadRepository nivelRepository;
     private final CursoMapper cursoMapper;
+    private final N8nSyncService n8nSyncService;
 
     @Override
     @Transactional
@@ -46,6 +48,7 @@ public class CursoServiceImpl implements CursoService {
             throw new BusinessRuleException("La duración del curso debe ser mayor que cero.");
         }
 
+        // Generar UUID si no se proporciona uno explícito
         String id = request.getId();
         if (id == null || id.trim().isEmpty()) {
             id = UUID.randomUUID().toString();
@@ -53,18 +56,21 @@ public class CursoServiceImpl implements CursoService {
             throw new BusinessRuleException(String.format("Ya existe un curso con el id '%s'.", id));
         }
 
-        Curso curso = Curso.builder()
-                .id(id)
-                .nombre(request.getNombre().trim())
-                .descripcion(request.getDescripcion().trim())
-                .categoria(categoria)
-                .nivel(nivel)
-                .duracion(request.getDuracion())
-                .estado(request.getEstado() != null ? request.getEstado() : true)
-                .build();
+        Curso curso = new Curso();
+        curso.setId(id);
+        curso.setNombre(request.getNombre().trim());
+        curso.setDescripcion(request.getDescripcion().trim());
+        curso.setCategoria(categoria);
+        curso.setNivel(nivel);
+        curso.setDuracion(request.getDuracion());
+        curso.setEstado(request.getEstado() == null || request.getEstado());
+        curso.setModalidad(request.getModalidad().trim());
+        curso.setPrecio(request.getPrecio());
 
         Curso guardado = cursoRepository.save(curso);
-        return cursoMapper.entityToDto(guardado);
+        CursoResponse response = cursoMapper.entityToDto(guardado);
+        n8nSyncService.sincronizarCurso(response, "CREAR");
+        return response;
     }
 
     @Override
@@ -115,8 +121,13 @@ public class CursoServiceImpl implements CursoService {
             curso.setEstado(request.getEstado());
         }
 
+        curso.setModalidad(request.getModalidad().trim());
+        curso.setPrecio(request.getPrecio());
+
         Curso actualizado = cursoRepository.save(curso);
-        return cursoMapper.entityToDto(actualizado);
+        CursoResponse response = cursoMapper.entityToDto(actualizado);
+        n8nSyncService.sincronizarCurso(response, "ACTUALIZAR");
+        return response;
     }
 
     @Override
@@ -126,8 +137,10 @@ public class CursoServiceImpl implements CursoService {
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Curso", id));
 
+        // Desactivación lógica (soft delete)
         curso.setEstado(false);
         cursoRepository.save(curso);
+        n8nSyncService.sincronizarCurso(cursoMapper.entityToDto(curso), "DESACTIVAR");
     }
 
     @Override

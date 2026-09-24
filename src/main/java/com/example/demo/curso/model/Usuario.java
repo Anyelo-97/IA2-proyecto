@@ -11,9 +11,12 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "usuario")
-@Getter @Setter
-@AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Usuario {
+
     @Id
     @Column(name = "id", length = 255, nullable = false, unique = true)
     private String id;

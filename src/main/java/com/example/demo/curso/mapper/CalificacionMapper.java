@@ -12,25 +12,26 @@ public class CalificacionMapper {
 
     public CalificacionResponse entityToDto(Calificacion calificacion) {
         if (calificacion == null) return null;
-        return CalificacionResponse.builder()
-                .id(calificacion.getId())
-                .estudianteId(calificacion.getEstudiante() != null ? calificacion.getEstudiante().getId() : null)
-                .recomendacionId(calificacion.getRecomendacion() != null ? calificacion.getRecomendacion().getId() : null)
-                .puntuacion(calificacion.getPuntuacion())
-                .comentario(calificacion.getComentario())
-                .build();
+        String estudianteId = calificacion.getEstudiante() != null ? calificacion.getEstudiante().getId() : null;
+        String recomendacionId = calificacion.getRecomendacion() != null ? calificacion.getRecomendacion().getId() : null;
+        return new CalificacionResponse(
+                calificacion.getId(),
+                estudianteId,
+                recomendacionId,
+                calificacion.getPuntuacion(),
+                calificacion.getComentario()
+        );
     }
 
     public Calificacion requestToEntity(CalificacionRequest request) {
         if (request == null) return null;
         Calificacion calificacion = new Calificacion();
-        if (request.getId() != null) {
-            calificacion.setId(request.getId());
-        }
+        calificacion.setId(request.getId());
         calificacion.setEstudiante(request.getEstudianteId() == null ? null : new Estudiante(request.getEstudianteId(), null, null, null, null));
-        calificacion.setRecomendacion(request.getRecomendacionId() == null ? null : new Recomendacion());
-        if (calificacion.getRecomendacion() != null) {
-            calificacion.getRecomendacion().setId(request.getRecomendacionId());
+        if (request.getRecomendacionId() != null) {
+            Recomendacion recomendacion = new Recomendacion();
+            recomendacion.setId(request.getRecomendacionId());
+            calificacion.setRecomendacion(recomendacion);
         }
         calificacion.setPuntuacion(request.getPuntuacion());
         calificacion.setComentario(request.getComentario());

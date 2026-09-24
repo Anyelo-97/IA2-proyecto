@@ -8,8 +8,14 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class AppConfig {
 
+    @Value("${rutaia.n8n.webhook-secret}")
+    private String n8nWebhookSecret;
+
     @Bean
     public RestClient restClient() {
-        return RestClient.create();
+        return RestClient.builder()
+                .defaultHeader("X-Webhook-Secret", n8nWebhookSecret)
+                .build();
     }
 }
+

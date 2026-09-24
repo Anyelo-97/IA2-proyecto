@@ -2,37 +2,33 @@ package com.example.demo.curso.mapper;
 
 import com.example.demo.curso.dto.request.RecomendacionRequest;
 import com.example.demo.curso.dto.response.RecomendacionResponse;
-import com.example.demo.curso.model.Consulta;
 import com.example.demo.curso.model.Recomendacion;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 @Component
 public class RecomendacionMapper {
 
     public RecomendacionResponse entityToDto(Recomendacion recomendacion) {
         if (recomendacion == null) return null;
-        return RecomendacionResponse.builder()
-                .id(recomendacion.getId())
-                .consultaId(recomendacion.getConsulta() != null ? recomendacion.getConsulta().getId() : null)
-                .contenido(recomendacion.getContenido())
-                .fecha(recomendacion.getFecha())
-                .estado(recomendacion.getEstado())
-                .build();
+        return new RecomendacionResponse(
+                recomendacion.getId(),
+                recomendacion.getConsultaId(),
+                recomendacion.getContenido(),
+                recomendacion.getFecha(),
+                recomendacion.getEstado()
+        );
     }
 
     public Recomendacion requestToEntity(RecomendacionRequest request) {
         if (request == null) return null;
-        Recomendacion.RecomendacionBuilder builder = Recomendacion.builder()
-                .contenido(request.getContenido());
-        if (request.getId() != null) {
-            builder.id(request.getId());
-        }
-        Recomendacion recomendacion = builder.build();
-        if (request.getConsultaId() != null) {
-            Consulta consulta = new Consulta();
-            consulta.setId(request.getConsultaId());
-            recomendacion.setConsulta(consulta);
-        }
+        Recomendacion recomendacion = new Recomendacion();
+        recomendacion.setId(request.getId());
+        recomendacion.setConsultaId(request.getConsultaId());
+        recomendacion.setContenido(request.getContenido());
+        recomendacion.setFecha(LocalDateTime.now());
+        recomendacion.setEstado("Respondida");
         return recomendacion;
     }
 }

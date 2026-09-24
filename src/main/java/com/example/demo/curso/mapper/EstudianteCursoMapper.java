@@ -13,18 +13,18 @@ public class EstudianteCursoMapper {
 
     public EstudianteCursoResponse entityToDto(EstudianteCurso relacion) {
         if (relacion == null) return null;
-        return EstudianteCursoResponse.builder()
-                .estudianteId(relacion.getEstudiante() != null ? relacion.getEstudiante().getId() :
-                        relacion.getId() != null ? relacion.getId().getEstudianteId() : null)
-                .cursoId(relacion.getCurso() != null ? relacion.getCurso().getId() :
-                        relacion.getId() != null ? relacion.getId().getCursoId() : null)
-                .build();
+        String estudianteId = relacion.getEstudiante() != null ? relacion.getEstudiante().getId() :
+                relacion.getId() != null ? relacion.getId().getEstudianteId() : null;
+        String cursoId = relacion.getCurso() != null ? relacion.getCurso().getId() :
+                relacion.getId() != null ? relacion.getId().getCursoId() : null;
+        return new EstudianteCursoResponse(estudianteId, cursoId);
     }
 
     public EstudianteCurso requestToEntity(EstudianteCursoRequest request) {
         if (request == null) return null;
         Estudiante estudiante = new Estudiante(request.getEstudianteId(), null, null, null, null);
-        Curso curso = Curso.builder().id(request.getCursoId()).build();
+        Curso curso = new Curso();
+        curso.setId(request.getCursoId());
         return new EstudianteCurso(
                 new EstudianteCursoId(request.getEstudianteId(), request.getCursoId()),
                 estudiante,

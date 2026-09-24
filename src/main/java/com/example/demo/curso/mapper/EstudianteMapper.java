@@ -10,17 +10,22 @@ public class EstudianteMapper {
 
     public EstudianteResponse entityToDto(Estudiante estudiante) {
         if (estudiante == null) return null;
-        return EstudianteResponse.builder()
-                .id(estudiante.getId())
-                .nombre(estudiante.getNombre())
-                .nivelExperiencia(estudiante.getNivelExperiencia())
-                .areaInteres(estudiante.getAreaInteres())
-                .build();
+        return new EstudianteResponse(
+                estudiante.getId(),
+                estudiante.getNombre(),
+                estudiante.getNivelExperiencia(),
+                estudiante.getAreaInteres()
+        );
     }
 
     public Estudiante requestToEntity(EstudianteRequest request) {
         if (request == null) return null;
-        return new Estudiante(request.getId(), request.getNombre(), request.getNivelExperiencia(),
-                request.getAreaInteres(), null);
+        return new Estudiante(
+                request.getId(),
+                request.getNombre(),
+                request.getNivelExperiencia(),
+                request.getAreaInteres(),
+                null
+        );
     }
 }
