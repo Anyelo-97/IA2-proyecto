@@ -105,6 +105,7 @@ public class ConsultaServiceImpl implements ConsultaService {
 
                 ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
                 res.setConsultaId(consulta.getId());
+                res.setRecomendacionId(recomendacion.getId());
                 res.setPregunta(consulta.getPregunta());
                 res.setEstado("Sin resultados");
                 res.setRespuesta(recomendacion.getContenido());
@@ -112,10 +113,15 @@ public class ConsultaServiceImpl implements ConsultaService {
                 return res;
             }
 
+            String contenido = response.getRespuesta() != null ? response.getRespuesta() : "";
+            if (contenido.length() > 2000) {
+                contenido = contenido.substring(0, 1997) + "...";
+            }
+
             Recomendacion recomendacion = new Recomendacion();
             recomendacion.setId(UUID.randomUUID().toString());
             recomendacion.setConsultaId(consulta.getId());
-            recomendacion.setContenido(response.getRespuesta() != null ? response.getRespuesta() : "");
+            recomendacion.setContenido(contenido);
             recomendacion.setFecha(LocalDateTime.now());
             recomendacion.setEstado("Respondida");
             Recomendacion recomendacionGuardada = recomendacionRepository.save(recomendacion);
@@ -140,6 +146,7 @@ public class ConsultaServiceImpl implements ConsultaService {
 
             ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
             res.setConsultaId(consulta.getId());
+            res.setRecomendacionId(recomendacionGuardada.getId());
             res.setPregunta(consulta.getPregunta());
             res.setEstado("Respondida");
             res.setRespuesta(recomendacionGuardada.getContenido());

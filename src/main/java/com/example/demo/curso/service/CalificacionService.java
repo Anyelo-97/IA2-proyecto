@@ -1,6 +1,13 @@
 package com.example.demo.curso.service;
 
-import com.example.demo.curso.model.Calificacion;
+import com.example.demo.curso.dto.request.CalificacionRequest;
+import com.example.demo.curso.dto.response.CalificacionResponse;
 
-public interface CalificacionService extends CrudService<Calificacion, String> {
+public interface CalificacionService {
+
+    CalificacionResponse calificar(CalificacionRequest request);
+
+    CalificacionResponse obtenerPorRecomendacion(String recomendacionId);
+
+    java.util.List<CalificacionResponse> listar();
 }
