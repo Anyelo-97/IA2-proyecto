@@ -2,7 +2,7 @@
 
 Esta carpeta contiene los archivos JSON de los flujos de automatización en **n8n**, los cuales orquestan la comunicación entre la API REST (Spring Boot), la base de datos vectorial (Qdrant) y el modelo de Inteligencia Artificial (OpenRouter).
 
-## 📂 Archivos Disponibles
+## Archivos Disponibles
 
 1. **`curso_sync_workflow.json`**: Flujo de sincronización. Recibe notificaciones de Spring Boot cada vez que se crea, actualiza o desactiva un curso. Se encarga de generar el embedding del curso y guardarlo en Qdrant (o eliminarlo si se desactiva).
 2. **`rag_query_workflow.json`**: Pipeline de Generación Aumentada por Recuperación (RAG). Recibe la pregunta del estudiante, la vectoriza, busca similitudes en Qdrant (aplicando el umbral de similitud y filtrando cursos activos), inyecta el contexto en el LLM y devuelve la respuesta al backend.
@@ -10,7 +10,7 @@ Esta carpeta contiene los archivos JSON de los flujos de automatización en **n8
 
 ---
 
-## 🚀 Guía de Instalación y Configuración
+## Guía de Instalación y Configuración
 
 Para poner en marcha estos flujos en tu entorno n8n, sigue estos pasos al pie de la letra:
 

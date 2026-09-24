@@ -17,10 +17,10 @@ En la carpeta `/carga` tienes los archivos con los cuerpos (bodies) JSON listos 
    `http://localhost:6333/collections/cursos`
 
 2. **Cargar los 23 Cursos (Puntos vectorizados):**
-   Envía el enorme JSON de `carga/02_puntos.json` mediante un **PUT** a:
-   `http://localhost:6333/collections/cursos/points` o usa la consola del dashboard
+   Envía el JSON de `carga/02_puntos.json` mediante un **PUT** a:
+   `http://localhost:6333/collections/cursos/points`
 
 3. **Verificar que la carga fue exitosa:**
-   Haz un **POST** a `http://localhost:6333/collections/cursos/points/scroll` enviando el JSON de `carga/03_verificar.json` (o usa la consola de  `http://localhost:6333/dashboard`).
+   Haz un **POST** a `http://localhost:6333/collections/cursos/points/scroll` enviando el JSON de `carga/03_verificar.json` (o revisa en la interfaz web `http://localhost:6333/dashboard`).
 
-*Nota: Una vez hecha esta carga inicial, cualquier curso nuevo que agregues desde el backend (Spring Boot) se sincronizará automáticamente hacia Qdrant usando el flujo de n8n (`curso_sync_workflow.json`).*
+*Nota: Una vez realizada esta carga inicial, cualquier curso nuevo que agregues desde el backend (Spring Boot) se sincronizará automáticamente hacia Qdrant usando el flujo de n8n (`curso_sync_workflow.json`).*
