@@ -20,7 +20,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Administrador {
-
     @Id
     @Column(name = "id", length = 255, nullable = false)
     private String id;
