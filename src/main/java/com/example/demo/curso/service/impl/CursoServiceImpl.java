@@ -64,9 +64,6 @@ public class CursoServiceImpl implements CursoService {
         curso.setNivel(nivel);
         curso.setDuracion(request.getDuracion());
         curso.setEstado(request.getEstado() == null || request.getEstado());
-        curso.setModalidad(request.getModalidad().trim());
-        curso.setPrecio(request.getPrecio());
-
         Curso guardado = cursoRepository.save(curso);
         CursoResponse response = cursoMapper.entityToDto(guardado);
         n8nSyncService.sincronizarCurso(response, "CREAR");
@@ -120,9 +117,6 @@ public class CursoServiceImpl implements CursoService {
         if (request.getEstado() != null) {
             curso.setEstado(request.getEstado());
         }
-
-        curso.setModalidad(request.getModalidad().trim());
-        curso.setPrecio(request.getPrecio());
 
         Curso actualizado = cursoRepository.save(curso);
         CursoResponse response = cursoMapper.entityToDto(actualizado);

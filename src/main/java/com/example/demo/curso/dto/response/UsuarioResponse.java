@@ -12,6 +12,7 @@ import lombok.Setter;
 public class UsuarioResponse {
 
     private String id;
+    private String nombre;
     private String email;
     private String rol;
 }

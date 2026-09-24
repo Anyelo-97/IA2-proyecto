@@ -87,6 +87,11 @@
             </select>
             <div class="error-text">Selecciona un nivel.</div>
           </div>
+          <div class="field" id="sr-f-interes">
+            <label>Área de interés</label>
+            <select id="srInteres"><option value="">Selecciona…</option></select>
+            <div class="error-text">Selecciona un área de interés.</div>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta</button>
         <p class="hint" style="margin-top:14px">¿Ya tienes cuenta? <a href="#" data-auth="login">Inicia sesión</a></p>
@@ -114,6 +119,11 @@
           <label>Confirmar contraseña</label>
           <input type="password" id="arPass2" placeholder="Repite la contraseña" autocomplete="new-password" minlength="8" required>
           <div class="error-text">Las contraseñas no coinciden.</div>
+        </div>
+        <div class="field" id="ar-f-codigo">
+          <label>Código de autorización</label>
+          <input type="password" id="arCodigo" placeholder="Código de la institución" autocomplete="off" required>
+          <div class="error-text">Código de autorización inválido.</div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta de administrador</button>
@@ -318,7 +328,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script>window.RUTAIA_API_BASE = "http://localhost:8080";</script>
+<script>window.RUTAIA_API_BASE = "http://localhost:8080/api";</script>
 <script src="script.js"></script>
 </body>
 </html>

@@ -40,9 +40,13 @@ function toast(msg, isErr){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>{ el.classList.remove("show"); }, 3200);
 }
-const clearFieldError = (id)=> $(id).classList.remove("has-error");
+const clearFieldError = (id)=>{
+  const field = $(id);
+  if(field) field.classList.remove("has-error");
+};
 const setFieldError = (id, msg)=>{
   const f = $(id);
+  if(!f) return;
   f.classList.add("has-error");
   if(msg){ const t = f.querySelector(".error-text"); if(t) t.textContent = msg; }
 };

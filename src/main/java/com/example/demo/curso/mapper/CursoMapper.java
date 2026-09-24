@@ -19,8 +19,6 @@ public class CursoMapper {
         response.setNivelId(curso.getNivel() != null ? curso.getNivel().getId() : null);
         response.setNivelNombre(curso.getNivel() != null ? curso.getNivel().getNombre() : null);
         response.setDuracion(curso.getDuracion());
-        response.setModalidad(curso.getModalidad());
-        response.setPrecio(curso.getPrecio());
         response.setEstado(curso.getEstado());
         return response;
     }
@@ -32,8 +30,6 @@ public class CursoMapper {
         curso.setNombre(request.getNombre());
         curso.setDescripcion(request.getDescripcion());
         curso.setDuracion(request.getDuracion());
-        curso.setModalidad(request.getModalidad());
-        curso.setPrecio(request.getPrecio());
         curso.setEstado(request.getEstado());
         return curso;
     }
