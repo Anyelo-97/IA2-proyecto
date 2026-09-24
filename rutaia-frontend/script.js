@@ -119,7 +119,7 @@ const api = {
   estudiantes:()=> http("/estudiantes"),
   crearEstudiante:(data)=> http("/estudiantes", {method:"POST", body:data}),
   eliminarEstudiante:(id)=> http("/estudiantes/"+enc(id), {method:"DELETE"}),
-  consultar:(pregunta)=> http("/consultas", {method:"POST", body:{pregunta}}),
+  consultar:(pregunta)=> http("/consultas", {method:"POST", body:{estudianteId: state.user?.id, pregunta}}),
   historial:(estudianteId)=> http("/estudiantes/"+enc(estudianteId)+"/historial"),
   calificar:(recomendacionId, puntuacion, comentario)=>
     http("/recomendaciones/"+enc(recomendacionId)+"/calificacion", {method:"POST", body:{puntuacion, comentario}}),
@@ -665,8 +665,8 @@ async function renderHistory(){
 
 async function loadStats(){
   const s = await api.estadisticas();
-  $("heroAnswered").textContent = s.respondidas;
-  $("heroAvgRating").textContent = fmtRating(s.promedioCalificacion);
+  $("heroAnswered").textContent = s.respondidas ?? s.consultasRespondidas ?? 0;
+  $("heroAvgRating").textContent = fmtRating(s.promedioCalificacion ?? s.promedioCalificaciones);
   return s;
 }
 async function renderStats(){
@@ -675,10 +675,10 @@ async function renderStats(){
   try{
     const s = await loadStats();
     grid.innerHTML = `
-      <div class="stat-card"><b>${s.total}</b><span>consultas totales</span></div>
-      <div class="stat-card"><b>${s.respondidas}</b><span>respondidas</span></div>
-      <div class="stat-card"><b>${s.sinResultados}</b><span>sin resultados</span></div>
-      <div class="stat-card"><b>${fmtRating(s.promedioCalificacion)}</b><span>calificación promedio</span></div>`;
+      <div class="stat-card"><b>${s.total ?? s.totalConsultas ?? 0}</b><span>consultas totales</span></div>
+      <div class="stat-card"><b>${s.respondidas ?? s.consultasRespondidas ?? 0}</b><span>respondidas</span></div>
+      <div class="stat-card"><b>${s.sinResultados ?? s.consultasSinResultados ?? 0}</b><span>sin resultados</span></div>
+      <div class="stat-card"><b>${fmtRating(s.promedioCalificacion ?? s.promedioCalificaciones)}</b><span>calificación promedio</span></div>`;
     $("topCourse").textContent = s.cursoMasRecomendado || "Aún no hay suficientes datos.";
   }catch(e){
     grid.innerHTML = '<div class="empty-state">No se pudieron cargar las estadísticas.</div>';

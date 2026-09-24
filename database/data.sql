@@ -129,3 +129,34 @@ INSERT IGNORE INTO usuario (id, email, password, rol) VALUES
 INSERT IGNORE INTO estudiante (id, nombre, nivel_experiencia, area_interes) VALUES
 ('est-001', 'Juan Pérez', 'Principiante', 'Desarrollo Web');
 
+-- 5. Administrador semilla
+INSERT IGNORE INTO usuario (id, email, password, rol) VALUES
+('adm-001', 'admin@rutaia.edu', 'admin123', 'ADMINISTRADOR');
+
+INSERT IGNORE INTO administrador (id, nombre) VALUES
+('adm-001', 'Administrador Principal');
+
+-- 6. Consultas semilla para estadísticas iniciales
+INSERT IGNORE INTO consulta (id, estudiante_id, pregunta, fecha, estado) VALUES
+('con-001', 'est-001', 'Quiero aprender desarrollo web con JavaScript', '2026-09-20 10:00:00', 'Respondida'),
+('con-002', 'est-001', 'Quiero aprender backend con Java y Spring Boot', '2026-09-21 11:30:00', 'Respondida'),
+('con-003', 'est-001', 'Quiero aprender cocina internacional', '2026-09-22 15:45:00', 'Sin resultados');
+
+-- 7. Recomendaciones semilla
+INSERT IGNORE INTO recomendacion (id, consulta_id, contenido, fecha, estado) VALUES
+('rec-001', 'con-001', 'Te sugerimos el curso de Desarrollo Web con HTML5, CSS3 y JavaScript para iniciar tus estudios en programación web.', '2026-09-20 10:00:05', 'Respondida'),
+('rec-002', 'con-002', 'Para backend con Java te recomendamos nuestro curso de Desarrollo Backend con Java y Spring Boot.', '2026-09-21 11:30:05', 'Respondida'),
+('rec-003', 'con-003', 'No se encontraron cursos de cocina en el catálogo actual.', '2026-09-22 15:45:05', 'Sin resultados');
+
+-- 8. Fuentes semilla
+INSERT IGNORE INTO fuente (id, recomendacion_id, curso_id, similitud) VALUES
+('fue-001', 'rec-001', 'c0000001-0000-4000-8000-000000000001', 0.92),
+('fue-002', 'rec-002', 'c0000002-0000-4000-8000-000000000002', 0.95),
+('fue-003', 'rec-002', 'c0000001-0000-4000-8000-000000000001', 0.88);
+
+-- 9. Calificaciones semilla
+INSERT IGNORE INTO calificacion (id, estudiante_id, recomendacion_id, puntuacion, comentario) VALUES
+('cal-001', 'est-001', 'rec-001', 5, 'Excelente recomendación, muy clara.'),
+('cal-002', 'est-001', 'rec-002', 4, 'Buen contenido y respuesta rápida.');
+
+

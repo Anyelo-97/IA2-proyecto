@@ -6,7 +6,6 @@ Esta carpeta contiene los archivos JSON de los flujos de automatización en **n8
 
 1. **`curso_sync_workflow.json`**: Flujo de sincronización. Recibe notificaciones de Spring Boot cada vez que se crea, actualiza o desactiva un curso. Se encarga de generar el embedding del curso y guardarlo en Qdrant (o eliminarlo si se desactiva).
 2. **`rag_query_workflow.json`**: Pipeline de Generación Aumentada por Recuperación (RAG). Recibe la pregunta del estudiante, la vectoriza, busca similitudes en Qdrant (aplicando el umbral de similitud y filtrando cursos activos), inyecta el contexto en el LLM y devuelve la respuesta al backend.
-3. **`carga_inicial_qdrant_workflow.json`**: Flujo auxiliar utilizado para vectorizar masivamente el catálogo de cursos base.
 
 ---
 

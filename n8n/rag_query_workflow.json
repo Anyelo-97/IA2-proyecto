@@ -11,10 +11,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -700,
-        300
+        48,
+        304
       ],
-      "id": "node-webhook",
+      "id": "116cf315-8199-4164-bca2-5cb3d15adb4a",
       "name": "Webhook Consulta",
       "webhookId": "rag-query-webhook-id"
     },
@@ -32,10 +32,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -480,
-        300
+        272,
+        304
       ],
-      "id": "node-if-valida-pregunta",
+      "id": "594c1369-aaa4-4256-9ed7-f17c988c0b44",
       "name": "Validar Pregunta"
     },
     {
@@ -49,10 +49,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        -260,
+        480,
         480
       ],
-      "id": "node-resp-error-val",
+      "id": "964c4fef-0d1c-4a62-a5df-22e59b4b6ecf",
       "name": "Responder Error Validación"
     },
     {
@@ -62,43 +62,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -260,
-        200
+        480,
+        208
       ],
-      "id": "node-prepara-config",
+      "id": "0c0b51d0-831d-4c2f-95eb-bcf0282b7e93",
       "name": "Prepara Config & Filtros"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://openrouter.ai/api/v1/embeddings",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer "
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: $json.modelo_embedding, input: $json.pregunta }) }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        -60,
-        200
-      ],
-      "id": "node-embedding",
-      "name": "Embedding Pregunta"
     },
     {
       "parameters": {
@@ -107,10 +75,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        140,
-        200
+        880,
+        208
       ],
-      "id": "node-prepara-vector",
+      "id": "0554f946-a666-4471-8904-0e4f34e62d2d",
       "name": "Preparar Vector Qdrant"
     },
     {
@@ -135,10 +103,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        340,
-        200
+        1088,
+        208
       ],
-      "id": "node-qdrant-search",
+      "id": "88284ac9-4b1f-44c1-a029-882767fc70ca",
       "name": "Buscar en Qdrant"
     },
     {
@@ -147,8 +115,7 @@
           "number": [
             {
               "value1": "={{ ($json.result ?? []).length }}",
-              "operation": "larger",
-              "value2": 0
+              "operation": "larger"
             }
           ]
         }
@@ -156,10 +123,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        540,
-        200
+        1280,
+        208
       ],
-      "id": "node-if-umbral",
+      "id": "04e688ed-e177-4108-b4be-eb1c4d1edb6a",
       "name": "Supera Umbral?"
     },
     {
@@ -173,10 +140,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        760,
-        380
+        1504,
+        384
       ],
-      "id": "node-resp-sin-resultados",
+      "id": "5e4e199c-8395-462e-81bf-ea9d1e33fac2",
       "name": "Responder Sin Resultados"
     },
     {
@@ -186,10 +153,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        760,
+        1504,
         80
       ],
-      "id": "node-contexto-rag",
+      "id": "5e9af0d9-a737-4e0b-b28a-cc019b9a867d",
       "name": "Construir Contexto RAG"
     },
     {
@@ -218,10 +185,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        980,
+        1728,
         80
       ],
-      "id": "node-llm-chat",
+      "id": "eeb1fc94-504d-4ce4-9621-b5bb814dc29c",
       "name": "Generar Respuesta con LLM"
     },
     {
@@ -231,10 +198,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1180,
+        1920,
         80
       ],
-      "id": "node-formato-spring",
+      "id": "9665397e-2cfe-47b8-8991-ad35ff795214",
       "name": "Formato Respuesta Spring Boot"
     },
     {
@@ -248,29 +215,46 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1380,
+        2128,
         80
       ],
-      "id": "node-resp-exito",
+      "id": "5ff982e5-b708-4b99-b118-421b94d06e5f",
       "name": "Responder Éxito (Fuentes)"
     },
     {
       "parameters": {
-        "content": "### FLUJO RAG - RUTAIA\n\n1. Bifurcación temprana si la pregunta está vacía.\n2. Búsqueda vectorial con filtro determinista de cursos activos.\n3. Bifurcación de umbral de relevancia: Si ningún curso supera el umbral (0.45), corta de inmediato y responde 'Sin resultados' sin llamar al LLM.\n4. Rama de éxito: Construye contexto estricto, genera con LLM y responde a Spring Boot con las fuentes y similitudes.",
-        "height": 520,
-        "width": 2200,
-        "color": 6
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: $json.modelo_embedding, input: $json.pregunta }) }}",
+        "options": {}
       },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
       "position": [
-        -740,
-        0
+        688,
+        208
       ],
-      "id": "node-sticky-doc",
-      "name": "Documentación Visual RAG"
+      "id": "452325da-616e-4d8f-9e03-628a884526da",
+      "name": "Embedding Pregunta"
     }
   ],
+  "pinData": {},
   "connections": {
     "Webhook Consulta": {
       "main": [
@@ -306,17 +290,6 @@
         [
           {
             "node": "Embedding Pregunta",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Embedding Pregunta": {
-      "main": [
-        [
-          {
-            "node": "Preparar Vector Qdrant",
             "type": "main",
             "index": 0
           }
@@ -395,10 +368,29 @@
           }
         ]
       ]
+    },
+    "Embedding Pregunta": {
+      "main": [
+        [
+          {
+            "node": "Preparar Vector Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "718ec8bd-e683-4ead-a259-806ececf342a",
   "meta": {
     "instanceId": "5e178e1de6857b6a7faf535a8b0a74af83d930683d763dd9ee064bf9fcf80faa"
-  }
+  },
+  "nodeGroups": [],
+  "id": "7Zhr7bvsqXnUbBFf",
+  "tags": []
 }
