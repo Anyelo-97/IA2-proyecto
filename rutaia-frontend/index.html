@@ -11,7 +11,6 @@
 </head>
 <body>
 
-<!-- ================= iniciar sesion ================= -->
 <div id="loginScreen">
   <div class="login-wrap">
     <div class="login-brand">
@@ -24,46 +23,105 @@
     </div>
 
     <div class="card login-card">
-      <!-- iniciar sesion estudiantes -->
       <form id="loginFormEstudiante" class="login-form active">
         <h2>Ingresa a tu cuenta</h2>
         <p class="sub">Usa el correo y la contraseña que te asignó tu institución.</p>
         <div class="field" id="lf-est-email">
           <label>Correo electrónico o ID de estudiante</label>
-          <input type="text" id="loginEstEmail" placeholder="tucorreo@correo.com o tu ID">
+          <input type="text" id="loginEstEmail" placeholder="tucorreo@correo.com o tu ID" autocomplete="username" required>
           <div class="error-text">Correo/ID o contraseña incorrectos.</div>
         </div>
         <div class="field" id="lf-est-pass">
           <label>Contraseña</label>
-          <input type="password" id="loginEstPass" placeholder="••••••••">
+          <input type="password" id="loginEstPass" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%">Ingresar</button>
-        <p class="hint" style="margin-top:14px">¿No tienes cuenta? Pídele a tu administrador que la cree por ti.</p>
+        <p class="hint" style="margin-top:14px">¿No tienes cuenta? <a href="#" data-auth="register">Regístrate</a></p>
       </form>
 
-      <!-- inicio sesion administradorn -->
       <form id="loginFormAdmin" class="login-form">
         <h2>Acceso administrativo</h2>
         <p class="sub">Solo personal autorizado de la institución.</p>
         <div class="field" id="lf-adm-email">
           <label>Correo electrónico</label>
-          <input type="email" id="loginAdmEmail" placeholder="admin@rutaia.edu">
+          <input type="email" id="loginAdmEmail" placeholder="admin@rutaia.edu" autocomplete="username" required>
           <div class="error-text">Correo o contraseña incorrectos.</div>
         </div>
         <div class="field" id="lf-adm-pass">
           <label>Contraseña</label>
-          <input type="password" id="loginAdmPass" placeholder="••••••••">
+          <input type="password" id="loginAdmPass" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%">Ingresar</button>
-        <div class="demo-hint" id="adminDemoHint">Modo demostración — credenciales de prueba: <strong>admin@rutaia.edu</strong> / <strong>admin123</strong></div>
+        <p class="hint" style="margin-top:14px">¿No tienes cuenta de administrador? <a href="#" data-auth="register">Regístrate</a></p>
       </form>
 
-      <div class="security-note"><span class="dot"></span><span>Esta validación ocurre en el navegador con fines de demostración. En producción debe verificarse en el backend (Spring Boot + Spring Security/JWT) para ser realmente segura.</span></div>
-    </div>
+      <form id="registerFormEstudiante" class="login-form" novalidate>
+        <h2>Crea tu cuenta</h2>
+        <p class="sub">Regístrate como estudiante para recibir recomendaciones de cursos.</p>
+        <div class="field" id="sr-f-nombre">
+          <label>Nombre completo</label>
+          <input type="text" id="srNombre" placeholder="Ej: Laura Gómez" autocomplete="name" required>
+          <div class="error-text">Escribe el nombre completo.</div>
+        </div>
+        <div class="field" id="sr-f-email">
+          <label>Correo electrónico</label>
+          <input type="email" id="srEmail" placeholder="laura@correo.com" autocomplete="email" required>
+          <div class="error-text">Correo no válido o ya registrado.</div>
+        </div>
+        <div class="field" id="sr-f-pass">
+          <label>Contraseña</label>
+          <input type="password" id="srPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required>
+          <div class="error-text">La contraseña debe tener al menos 6 caracteres.</div>
+        </div>
+        <div class="field" id="sr-f-pass2">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="srPass2" placeholder="Repite la contraseña" autocomplete="new-password" minlength="8" required>
+          <div class="error-text">Las contraseñas no coinciden.</div>
+        </div>
+        <div class="grid-2">
+          <div class="field" id="sr-f-nivel">
+            <label>Nivel de experiencia</label>
+            <select id="srNivel">
+              <option value="">Selecciona…</option>
+              <option>Principiante</option><option>Intermedio</option><option>Avanzado</option>
+            </select>
+            <div class="error-text">Selecciona un nivel.</div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta</button>
+        <p class="hint" style="margin-top:14px">¿Ya tienes cuenta? <a href="#" data-auth="login">Inicia sesión</a></p>
+      </form>
+
+      <form id="registerFormAdmin" class="login-form" novalidate>
+        <h2>Registro administrativo</h2>
+        <p class="sub">Requiere el código de autorización entregado por la institución.</p>
+        <div class="field" id="ar-f-nombre">
+          <label>Nombre completo</label>
+          <input type="text" id="arNombre" placeholder="Ej: Ana Ruiz" autocomplete="name" required>
+          <div class="error-text">Escribe el nombre completo.</div>
+        </div>
+        <div class="field" id="ar-f-email">
+          <label>Correo electrónico</label>
+          <input type="email" id="arEmail" placeholder="admin@rutaia.edu" autocomplete="email" required>
+          <div class="error-text">Correo no válido o ya registrado.</div>
+        </div>
+        <div class="field" id="ar-f-pass">
+          <label>Contraseña</label>
+          <input type="password" id="arPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required>
+          <div class="error-text">La contraseña debe tener al menos 6 caracteres.</div>
+        </div>
+        <div class="field" id="ar-f-pass2">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="arPass2" placeholder="Repite la contraseña" autocomplete="new-password" minlength="8" required>
+          <div class="error-text">Las contraseñas no coinciden.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta de administrador</button>
+        <p class="hint" style="margin-top:14px">¿Ya tienes cuenta? <a href="#" data-auth="login">Inicia sesión</a></p>
+      </form>    </div>
   </div>
 </div>
 
-<!-- ================= APP ================= -->
 <div id="appRoot">
 <div class="topbar">
   <div class="topbar-inner">
@@ -94,14 +152,6 @@
     </div>
   </section>
 
-  <div class="conn-bar" id="connBarAdmin">
-    <span class="conn-dot off" id="connDot"></span>
-    <span class="conn-label" id="connLabel">Modo demostración — datos simulados en el navegador</span>
-    <input type="text" id="apiBaseInput" placeholder="URL del API de Spring Boot (ej: http://localhost:8080/api)">
-    <button class="btn btn-ghost btn-sm" id="connectBtn">Conectar</button>
-    <button class="btn btn-ghost btn-sm" id="demoBtn">Usar demo</button>
-  </div>
-
   <section class="panel" id="panel-catalogo">
     <div class="section-head">
       <h2>Catálogo de cursos</h2>
@@ -109,15 +159,11 @@
     </div>
     <div class="filters">
       <select id="filterCategoria"><option value="">Todas las categorías</option></select>
-      <select id="filterNivel">
-        <option value="">Todos los niveles</option>
-        <option>Básico</option><option>Intermedio</option><option>Avanzado</option>
-      </select>
+      <select id="filterNivel"><option value="">Todos los niveles</option></select>
     </div>
     <div id="courseGrid" class="course-grid"></div>
   </section>
 
-  <!-- Solo admi: administrador de estudiantes -->
   <section class="panel" id="panel-estudiantes">
     <div class="section-head">
       <h2>Estudiantes</h2>
@@ -208,7 +254,6 @@
     <div id="historyList" class="history-list"></div>
   </section>
 
-  <!-- solo admin -->
   <section class="panel" id="panel-admin">
     <div class="section-head">
       <h2>Administrar cursos</h2>
@@ -228,7 +273,6 @@
     </div>
   </section>
 
-  <!-- solo el admin -->
   <section class="panel" id="panel-stats">
     <div class="section-head">
       <h2>Estadísticas</h2>
@@ -241,7 +285,7 @@
     </div>
   </section>
 
-  <footer>RutaIA · frontend de referencia — HTML, CSS y JavaScript, conectado a una API de Spring Boot vía Fetch. El frontend nunca llama directamente a n8n, Qdrant u OpenRouter.</footer>
+  <footer>RutaIA · HTML, CSS y JavaScript conectado a la API de Spring Boot vía Fetch. Los datos viven en MySQL. El frontend nunca llama directamente a n8n, Qdrant u OpenRouter.</footer>
 </div>
 </div>
 
@@ -256,9 +300,9 @@
       <div class="field" id="cf-nombre"><label>Nombre</label><input type="text" id="courseNombre"><div class="error-text">El nombre es obligatorio.</div></div>
       <div class="field" id="cf-desc"><label>Descripción</label><textarea id="courseDesc" placeholder="Sé específico: esta descripción alimenta la búsqueda semántica."></textarea><div class="error-text">La descripción es obligatoria.</div></div>
       <div class="grid-2">
-        <div class="field" id="cf-cat"><label>Categoría</label><input type="text" id="courseCat" placeholder="Ej: Desarrollo Web"><div class="error-text">Requerida.</div></div>
+        <div class="field" id="cf-cat"><label>Categoría</label><select id="courseCat"></select><div class="error-text">Requerida.</div></div>
         <div class="field" id="cf-nivel"><label>Nivel</label>
-          <select id="courseNivel"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select>
+          <select id="courseNivel"></select>
         </div>
       </div>
       <div class="grid-2">
@@ -274,6 +318,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script>window.RUTAIA_API_BASE = "http://localhost:8080";</script>
 <script src="script.js"></script>
 </body>
 </html>
