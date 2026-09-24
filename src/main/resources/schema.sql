@@ -2,6 +2,10 @@
 -- RutaIA - Schema completo (MySQL)
 -- =============================================
 
+DROP DATABASE IF EXISTS rutaIA;
+CREATE DATABASE IF NOT EXISTS rutaIA;
+USE rutaIA;
+
 CREATE TABLE IF NOT EXISTS usuario (
     id VARCHAR(255) PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,

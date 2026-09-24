@@ -3,6 +3,8 @@
 -- Nota: Los IDs de cursos son UUIDs válidos para compatibilidad estricta con Qdrant
 -- ========================================================
 
+USE rutaIA;
+
 -- 1. Categorías
 INSERT IGNORE INTO categoria (id, nombre) VALUES
 ('cat-001', 'Desarrollo Web'),
@@ -119,3 +121,11 @@ INSERT IGNORE INTO curso (id, nombre, descripcion, categoria_id, nivel_id, durac
 ('c0000023-0000-4000-8000-000000000023', 'Orquestación de Contenedores a Gran Escala con Kubernetes', 
  'Administra clústeres elásticos en producción mediante Kubernetes. Aprende la configuración de Pods, Deployments, Services, Ingress Controllers, ConfigMaps y autoescalado horizontal (HPA). Se cubren estrategias de despliegue progresivo (rolling updates, canary) y monitorización continua con Prometheus y Grafana. Diseñado para ingenieros que operan infraestructura crítica en la nube.', 
  'cat-007', 'niv-003', 65, 'Presencial', 240.00, TRUE);
+
+-- 4. Estudiantes semilla para pruebas
+INSERT IGNORE INTO usuario (id, email, password, rol) VALUES
+('est-001', 'juan.perez@universidad.edu', 'password123', 'ESTUDIANTE');
+
+INSERT IGNORE INTO estudiante (id, nombre, nivel_experiencia, area_interes) VALUES
+('est-001', 'Juan Pérez', 'Principiante', 'Desarrollo Web');
+
