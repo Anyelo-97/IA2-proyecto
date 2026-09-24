@@ -45,13 +45,12 @@ public class ConsultaServiceImpl implements ConsultaService {
         // b) // TODO: validate estudianteId exists when Estudiante entity is available
 
         // c) Create Consulta with id=UUID, estado="Pendiente", fecha=LocalDateTime.now()
-        Consulta consulta = Consulta.builder()
-                .id(UUID.randomUUID().toString())
-                .estudianteId(request.getEstudianteId().trim())
-                .pregunta(request.getPregunta().trim())
-                .fecha(LocalDateTime.now())
-                .estado("Pendiente")
-                .build();
+        Consulta consulta = new Consulta();
+        consulta.setId(UUID.randomUUID().toString());
+        consulta.setEstudianteId(request.getEstudianteId().trim());
+        consulta.setPregunta(request.getPregunta().trim());
+        consulta.setFecha(LocalDateTime.now());
+        consulta.setEstado("Pendiente");
 
         // d) Save to DB
         Consulta guardada = consultaRepository.save(consulta);
@@ -59,13 +58,13 @@ public class ConsultaServiceImpl implements ConsultaService {
 
         // e) Return ConsultaConResultadoResponse with estado="Pendiente", null respuesta, empty fuentes
         // (the n8n call + recommendation saving will be wired in commit 6 when RecomendacionService exists)
-        return ConsultaConResultadoResponse.builder()
-                .consultaId(guardada.getId())
-                .pregunta(guardada.getPregunta())
-                .estado(guardada.getEstado())
-                .respuesta(null)
-                .fuentes(Collections.emptyList())
-                .build();
+        ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
+        res.setConsultaId(guardada.getId());
+        res.setPregunta(guardada.getPregunta());
+        res.setEstado(guardada.getEstado());
+        res.setRespuesta(null);
+        res.setFuentes(Collections.emptyList());
+        return res;
     }
 
     @Override

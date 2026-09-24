@@ -45,10 +45,7 @@ class ConsultaServiceImplTest {
 
     @Test
     void testCrearConsultaExitoso() {
-        ConsultaRequest request = ConsultaRequest.builder()
-                .estudianteId("est-123")
-                .pregunta("¿Cómo inicio en ciencia de datos?")
-                .build();
+        ConsultaRequest request = new ConsultaRequest("est-123", "¿Cómo inicio en ciencia de datos?");
 
         when(consultaRepository.save(any(Consulta.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -67,10 +64,7 @@ class ConsultaServiceImplTest {
 
     @Test
     void testCrearConsultaPreguntaVaciaLanzaExcepcion() {
-        ConsultaRequest request = ConsultaRequest.builder()
-                .estudianteId("est-123")
-                .pregunta("   ")
-                .build();
+        ConsultaRequest request = new ConsultaRequest("est-123", "   ");
 
         assertThrows(BusinessRuleException.class, () -> consultaService.crearConsulta(request));
         verify(consultaRepository, never()).save(any(Consulta.class));
@@ -78,13 +72,13 @@ class ConsultaServiceImplTest {
 
     @Test
     void testObtenerPorIdExitoso() {
-        Consulta consulta = Consulta.builder()
-                .id("c-1")
-                .estudianteId("est-1")
-                .pregunta("Pregunta")
-                .fecha(LocalDateTime.now())
-                .estado("Pendiente")
-                .build();
+        Consulta consulta = new Consulta(
+                "c-1",
+                "est-1",
+                "Pregunta",
+                LocalDateTime.now(),
+                "Pendiente"
+        );
 
         when(consultaRepository.findById("c-1")).thenReturn(Optional.of(consulta));
 
@@ -104,13 +98,13 @@ class ConsultaServiceImplTest {
 
     @Test
     void testListarHistorial() {
-        Consulta consulta = Consulta.builder()
-                .id("c-1")
-                .estudianteId("est-1")
-                .pregunta("Pregunta")
-                .fecha(LocalDateTime.now())
-                .estado("Pendiente")
-                .build();
+        Consulta consulta = new Consulta(
+                "c-1",
+                "est-1",
+                "Pregunta",
+                LocalDateTime.now(),
+                "Pendiente"
+        );
 
         when(consultaRepository.findByEstudianteIdOrderByFechaDesc("est-1"))
                 .thenReturn(List.of(consulta));

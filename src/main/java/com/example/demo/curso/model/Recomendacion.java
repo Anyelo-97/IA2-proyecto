@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Recomendacion {
 
     @Id
@@ -35,6 +33,5 @@ public class Recomendacion {
     private LocalDateTime fecha;
 
     @Column(name = "estado", length = 50, nullable = false)
-    @Builder.Default
     private String estado = "Respondida";
 }

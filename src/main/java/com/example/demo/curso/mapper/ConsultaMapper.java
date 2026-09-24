@@ -18,13 +18,13 @@ public class ConsultaMapper {
         if (consulta == null) {
             return null;
         }
-        return ConsultaResponse.builder()
-                .id(consulta.getId())
-                .estudianteId(consulta.getEstudianteId())
-                .pregunta(consulta.getPregunta())
-                .fecha(consulta.getFecha())
-                .estado(consulta.getEstado())
-                .build();
+        return new ConsultaResponse(
+                consulta.getId(),
+                consulta.getEstudianteId(),
+                consulta.getPregunta(),
+                consulta.getFecha(),
+                consulta.getEstado()
+        );
     }
 
     public HistorialResponse toHistorial(Consulta consulta, Recomendacion recomendacion, List<Fuente> fuentes) {
@@ -47,13 +47,13 @@ public class ConsultaMapper {
                     .collect(Collectors.toList());
         }
 
-        return HistorialResponse.builder()
-                .consultaId(consulta.getId())
-                .pregunta(consulta.getPregunta())
-                .fecha(consulta.getFecha())
-                .estado(consulta.getEstado())
-                .resumen(resumen)
-                .cursosRecomendados(cursosRecomendados)
-                .build();
+        return new HistorialResponse(
+                consulta.getId(),
+                consulta.getPregunta(),
+                consulta.getFecha(),
+                consulta.getEstado(),
+                resumen,
+                cursosRecomendados
+        );
     }
 }

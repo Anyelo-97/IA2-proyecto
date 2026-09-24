@@ -52,18 +52,15 @@ class ConsultaControllerTest {
 
     @Test
     void testCrearConsultaEndpoint() throws Exception {
-        ConsultaRequest request = ConsultaRequest.builder()
-                .estudianteId("est-1")
-                .pregunta("¿Cómo funciona el RAG?")
-                .build();
+        ConsultaRequest request = new ConsultaRequest("est-1", "¿Cómo funciona el RAG?");
 
-        ConsultaConResultadoResponse response = ConsultaConResultadoResponse.builder()
-                .consultaId("c-1")
-                .pregunta("¿Cómo funciona el RAG?")
-                .estado("Pendiente")
-                .respuesta(null)
-                .fuentes(Collections.emptyList())
-                .build();
+        ConsultaConResultadoResponse response = new ConsultaConResultadoResponse(
+                "c-1",
+                "¿Cómo funciona el RAG?",
+                "Pendiente",
+                null,
+                Collections.emptyList()
+        );
 
         when(consultaService.crearConsulta(any(ConsultaRequest.class))).thenReturn(response);
 
@@ -80,10 +77,7 @@ class ConsultaControllerTest {
 
     @Test
     void testCrearConsultaValidacionFalla() throws Exception {
-        ConsultaRequest invalidRequest = ConsultaRequest.builder()
-                .estudianteId("")
-                .pregunta("")
-                .build();
+        ConsultaRequest invalidRequest = new ConsultaRequest("", "");
 
         mockMvc.perform(post("/api/consultas")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,13 +87,13 @@ class ConsultaControllerTest {
 
     @Test
     void testObtenerPorIdEndpoint() throws Exception {
-        ConsultaResponse response = ConsultaResponse.builder()
-                .id("c-1")
-                .estudianteId("est-1")
-                .pregunta("¿Cómo aprender Java?")
-                .fecha(LocalDateTime.now())
-                .estado("Pendiente")
-                .build();
+        ConsultaResponse response = new ConsultaResponse(
+                "c-1",
+                "est-1",
+                "¿Cómo aprender Java?",
+                LocalDateTime.now(),
+                "Pendiente"
+        );
 
         when(consultaService.obtenerPorId("c-1")).thenReturn(response);
 
@@ -121,14 +115,14 @@ class ConsultaControllerTest {
 
     @Test
     void testListarHistorialEndpoint() throws Exception {
-        HistorialResponse item = HistorialResponse.builder()
-                .consultaId("c-1")
-                .pregunta("¿Pregunta?")
-                .fecha(LocalDateTime.now())
-                .estado("Pendiente")
-                .resumen(null)
-                .cursosRecomendados(Collections.emptyList())
-                .build();
+        HistorialResponse item = new HistorialResponse(
+                "c-1",
+                "¿Pregunta?",
+                LocalDateTime.now(),
+                "Pendiente",
+                null,
+                Collections.emptyList()
+        );
 
         when(consultaService.listarHistorial("est-1")).thenReturn(List.of(item));
 

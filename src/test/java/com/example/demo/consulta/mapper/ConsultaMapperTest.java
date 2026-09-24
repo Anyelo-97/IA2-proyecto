@@ -27,13 +27,13 @@ class ConsultaMapperTest {
     @Test
     void testEntityToDto() {
         LocalDateTime now = LocalDateTime.now();
-        Consulta consulta = Consulta.builder()
-                .id("c-1")
-                .estudianteId("e-1")
-                .pregunta("¿Cómo aprender Spring Boot?")
-                .fecha(now)
-                .estado("Pendiente")
-                .build();
+        Consulta consulta = new Consulta(
+                "c-1",
+                "e-1",
+                "¿Cómo aprender Spring Boot?",
+                now,
+                "Pendiente"
+        );
 
         ConsultaResponse dto = mapper.entityToDto(consulta);
 
@@ -53,13 +53,13 @@ class ConsultaMapperTest {
     @Test
     void testToHistorialWithNullRecomendacionAndFuentes() {
         LocalDateTime now = LocalDateTime.now();
-        Consulta consulta = Consulta.builder()
-                .id("c-1")
-                .estudianteId("e-1")
-                .pregunta("¿Pregunta test?")
-                .fecha(now)
-                .estado("Pendiente")
-                .build();
+        Consulta consulta = new Consulta(
+                "c-1",
+                "e-1",
+                "¿Pregunta test?",
+                now,
+                "Pendiente"
+        );
 
         HistorialResponse historial = mapper.toHistorial(consulta, null, null);
 
@@ -75,28 +75,40 @@ class ConsultaMapperTest {
     @Test
     void testToHistorialWithTruncatedResumenAndCursos() {
         LocalDateTime now = LocalDateTime.now();
-        Consulta consulta = Consulta.builder()
-                .id("c-2")
-                .estudianteId("e-2")
-                .pregunta("¿Ruta para IA?")
-                .fecha(now)
-                .estado("Respondida")
-                .build();
+        Consulta consulta = new Consulta(
+                "c-2",
+                "e-2",
+                "¿Ruta para IA?",
+                now,
+                "Respondida"
+        );
 
         String longContent = "A".repeat(250);
-        Recomendacion recomendacion = Recomendacion.builder()
-                .id("r-1")
-                .consultaId("c-2")
-                .contenido(longContent)
-                .fecha(now)
-                .estado("Respondida")
-                .build();
+        Recomendacion recomendacion = new Recomendacion(
+                "r-1",
+                "c-2",
+                longContent,
+                now,
+                "Respondida"
+        );
 
-        Curso curso1 = Curso.builder().id("cur-1").nombre("Curso Python").build();
-        Curso curso2 = Curso.builder().id("cur-2").nombre("Curso Machine Learning").build();
+        Curso curso1 = new Curso();
+        curso1.setId("cur-1");
+        curso1.setNombre("Curso Python");
 
-        Fuente fuente1 = Fuente.builder().id("f-1").curso(curso1).similitud(0.95).build();
-        Fuente fuente2 = Fuente.builder().id("f-2").curso(curso2).similitud(0.88).build();
+        Curso curso2 = new Curso();
+        curso2.setId("cur-2");
+        curso2.setNombre("Curso Machine Learning");
+
+        Fuente fuente1 = new Fuente();
+        fuente1.setId("f-1");
+        fuente1.setCurso(curso1);
+        fuente1.setSimilitud(0.95);
+
+        Fuente fuente2 = new Fuente();
+        fuente2.setId("f-2");
+        fuente2.setCurso(curso2);
+        fuente2.setSimilitud(0.88);
 
         HistorialResponse historial = mapper.toHistorial(consulta, recomendacion, List.of(fuente1, fuente2));
 

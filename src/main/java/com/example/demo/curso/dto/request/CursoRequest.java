@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class CursoRequest {
 
     private String id;
@@ -37,6 +35,5 @@ public class CursoRequest {
     @Min(value = 1, message = "La duración debe ser mayor que cero")
     private Integer duracion;
 
-    @Builder.Default
     private Boolean estado = true;
 }

@@ -55,15 +55,14 @@ public class CursoServiceImpl implements CursoService {
             throw new BusinessRuleException(String.format("Ya existe un curso con el id '%s'.", id));
         }
 
-        Curso curso = Curso.builder()
-                .id(id)
-                .nombre(request.getNombre().trim())
-                .descripcion(request.getDescripcion().trim())
-                .categoria(categoria)
-                .nivel(nivel)
-                .duracion(request.getDuracion())
-                .estado(request.getEstado() == null || request.getEstado())
-                .build();
+        Curso curso = new Curso();
+        curso.setId(id);
+        curso.setNombre(request.getNombre().trim());
+        curso.setDescripcion(request.getDescripcion().trim());
+        curso.setCategoria(categoria);
+        curso.setNivel(nivel);
+        curso.setDuracion(request.getDuracion());
+        curso.setEstado(request.getEstado() == null || request.getEstado());
 
         Curso guardado = cursoRepository.save(curso);
         CursoResponse response = cursoMapper.entityToDto(guardado);
