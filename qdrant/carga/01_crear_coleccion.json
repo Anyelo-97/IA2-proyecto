@@ -13,7 +13,7 @@ PUT collections/cursos
 // 2. Crear índices de filtrado en el payload
 // ========================================================
 
-// Índice para filtrar solo cursos activos (RF10)
+// Índice para filtrar solo cursos activos
 PUT collections/cursos/index
 {
   "field_name": "estado",

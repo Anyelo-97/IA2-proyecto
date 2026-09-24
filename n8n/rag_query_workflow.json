@@ -1,142 +1,404 @@
 {
-  "name": "RutaIA - Pipeline RAG Completo",
+  "name": "RutaIA - Pipeline RAG de Consultas",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "rag-query",
-        "responseMode": "lastNode",
+        "responseMode": "responseNode",
         "options": {}
       },
-      "name": "Webhook (Recibe Consulta)",
       "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -700,
+        300
+      ],
+      "id": "node-webhook",
+      "name": "Webhook Consulta",
+      "webhookId": "rag-query-webhook-id"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ ($json.body?.pregunta ?? $json.pregunta ?? '').trim() }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [ 0, 300 ]
+      "position": [
+        -480,
+        300
+      ],
+      "id": "node-if-valida-pregunta",
+      "name": "Validar Pregunta"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"consultaId\": \"{{ $json.body?.consultaId ?? 'error' }}\",\n  \"pregunta\": \"\",\n  \"estado\": \"Error\",\n  \"respuesta\": \"La pregunta no puede estar vacía.\",\n  \"fuentes\": []\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -260,
+        480
+      ],
+      "id": "node-resp-error-val",
+      "name": "Responder Error Validación"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body ?? $json;\nconst consultaId = b.consultaId ?? 'consulta-temp';\nconst pregunta = (b.pregunta ?? b.mensaje ?? '').trim();\nconst nivelExperiencia = b.nivelExperiencia ?? 'Principiante';\nconst areaInteres = b.areaInteres ?? 'Desarrollo Web';\n\n// Filtro determinista en Qdrant: solo cursos activos\nconst filter = {\n  must: [\n    {\n      key: 'estado',\n      match: { value: true }\n    }\n  ]\n};\n\nreturn [{\n  json: {\n    consultaId,\n    pregunta,\n    nivelExperiencia,\n    areaInteres,\n    filter,\n    qdrant_url: 'http://qdrant:6333',\n    coleccion: 'cursos',\n    modelo_embedding: 'text-embedding-3-small',\n    limite: 5,\n    score_threshold: 0.45\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        200
+      ],
+      "id": "node-prepara-config",
+      "name": "Prepara Config & Filtros"
     },
     {
       "parameters": {
         "method": "POST",
         "url": "https://openrouter.ai/api/v1/embeddings",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            { "name": "model", "value": "text-embedding-3-small" },
-            { "name": "input", "value": "={{ $json.body.pregunta }}" }
-          ]
-        },
+        "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Authorization", "value": "Bearer AQUI_TU_OPENROUTER_API_KEY" }
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
-        }
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: $json.modelo_embedding, input: $json.pregunta }) }}",
+        "options": {}
       },
-      "name": "OpenRouter (Embedding)",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [ 200, 300 ]
+      "typeVersion": 4.5,
+      "position": [
+        -60,
+        200
+      ],
+      "id": "node-embedding",
+      "name": "Embedding Pregunta"
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $('Prepara Config & Filtros').first().json;\nconst r = $input.first().json;\nif (!r.data?.length) throw new Error('No se pudo generar embedding en OpenRouter');\nreturn [{\n  json: {\n    ...c,\n    vector: r.data[0].embedding\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        140,
+        200
+      ],
+      "id": "node-prepara-vector",
+      "name": "Preparar Vector Qdrant"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "http://qdrant:6333/collections/cursos/points/search",
-        "sendBody": true,
-        "bodyParameters": {
+        "url": "={{ $json.qdrant_url + '/collections/' + $json.coleccion + '/points/search' }}",
+        "sendHeaders": true,
+        "headerParameters": {
           "parameters": [
-            { "name": "vector", "value": "={{ $json.data[0].embedding }}" },
-            { "name": "limit", "value": 5 },
-            { "name": "score_threshold", "value": 0.7 },
-            { "name": "with_payload", "value": true },
-            { "name": "filter", "value": "={{ { \"must\": [ { \"key\": \"estado\", \"match\": { \"value\": true } } ] } }}" }
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
-        }
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  vector: $json.vector,\n  filter: $json.filter,\n  limit: $json.limite,\n  score_threshold: $json.score_threshold,\n  with_payload: true,\n  with_vector: false\n}) }}",
+        "options": {}
       },
-      "name": "Qdrant (Búsqueda Vectorial)",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [ 400, 300 ]
+      "typeVersion": 4.5,
+      "position": [
+        340,
+        200
+      ],
+      "id": "node-qdrant-search",
+      "name": "Buscar en Qdrant"
     },
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "number": [
             {
-              "value1": "={{ $json.result.length > 0 }}",
-              "value2": true
+              "value1": "={{ ($json.result ?? []).length }}",
+              "operation": "larger",
+              "value2": 0
             }
           ]
         }
       },
-      "name": "If (Supera Umbral 0.7)",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [ 600, 300 ]
+      "position": [
+        540,
+        200
+      ],
+      "id": "node-if-umbral",
+      "name": "Supera Umbral?"
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"consultaId\": \"{{ $('Webhook (Recibe Consulta)').item.json.body.consultaId }}\",\n  \"respuesta\": \"Lo siento, no encontré cursos en nuestro catálogo actual que superen el umbral de similitud para tu búsqueda. ¿Podrías intentar reformular tu pregunta o revisar nuestras categorías?\",\n  \"estado\": \"Sin resultados\",\n  \"fuentes\": []\n}",
-        "options": {}
+        "responseBody": "={\n  \"consultaId\": \"{{ $('Prepara Config & Filtros').first().json.consultaId }}\",\n  \"pregunta\": \"{{ $('Prepara Config & Filtros').first().json.pregunta }}\",\n  \"estado\": \"Sin resultados\",\n  \"respuesta\": \"Lo sentimos, no encontramos cursos en nuestro catálogo que coincidan suficientemente con tu búsqueda o superen el umbral de relevancia semántica (0.45). Te sugerimos explorar otras áreas o reformular tu consulta.\",\n  \"fuentes\": []\n}",
+        "options": {
+          "responseCode": 200
+        }
       },
-      "name": "Respuesta (Sin Resultados)",
       "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1,
-      "position": [ 800, 500 ]
+      "typeVersion": 1.5,
+      "position": [
+        760,
+        380
+      ],
+      "id": "node-resp-sin-resultados",
+      "name": "Responder Sin Resultados"
+    },
+    {
+      "parameters": {
+        "jsCode": "const config = $('Prepara Config & Filtros').first().json;\nconst puntos = $('Buscar en Qdrant').first().json.result ?? [];\n\nconst cursos = puntos.map((p, idx) => ({\n  posicion: idx + 1,\n  cursoId: p.payload?.cursoId ?? p.id,\n  nombre: p.payload?.nombre ?? 'Curso',\n  descripcion: p.payload?.descripcion ?? '',\n  categoriaNombre: p.payload?.categoriaNombre ?? '',\n  nivelNombre: p.payload?.nivelNombre ?? '',\n  duracion: p.payload?.duracion ?? 0,\n  modalidad: p.payload?.modalidad ?? 'Virtual',\n  precio: p.payload?.precio ?? 0,\n  similitud: Number((p.score ?? 0).toFixed(4))\n}));\n\nconst contexto = cursos.map((c, idx) => {\n  return `Curso #${idx + 1}: ${c.nombre}\n- Categoría: ${c.categoriaNombre} | Nivel: ${c.nivelNombre}\n- Modalidad: ${c.modalidad} | Duración: ${c.duracion} horas | Precio: $${c.precio} USD\n- Similitud semántica con la consulta: ${c.similitud}\n- Descripción: ${c.descripcion}`;\n}).join('\\n\\n');\n\nconst prompt = `Eres un asesor académico experto de RutaIA.\nTu misión es responder al estudiante con recomendaciones precisas y fundamentadas basadas EXCLUSIVAMENTE en el contexto de cursos recuperados de la institución.\n\nPERFIL DEL ESTUDIANTE:\n- Nivel de experiencia: ${config.nivelExperiencia}\n- Área de interés: ${config.areaInteres}\n\nREGLAS ESTRICTAS DE RESPUESTA:\n1. Basa tu respuesta ÚNICAMENTE en la información de los cursos del contexto. NO inventes cursos, herramientas ni certificaciones que no figuren allí.\n2. Si la información del catálogo es insuficiente para cubrir la totalidad de lo pedido, reconócelo explícitamente.\n3. Explica con claridad y calidez por qué cada curso recomendado encaja con el perfil y la consulta del estudiante.\n4. Destaca el nombre de cada curso y sus modalidades/niveles.\n\nCONTEXTO DE CURSOS DISPONIBLES:\n${contexto}\n\nCONSULTA DEL ESTUDIANTE:\n${config.pregunta}`;\n\nreturn [{\n  json: {\n    consultaId: config.consultaId,\n    pregunta: config.pregunta,\n    prompt,\n    cursos\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        80
+      ],
+      "id": "node-contexto-rag",
+      "name": "Construir Contexto RAG"
     },
     {
       "parameters": {
         "method": "POST",
         "url": "https://openrouter.ai/api/v1/chat/completions",
-        "sendBody": true,
-        "bodyParameters": {
+        "sendHeaders": true,
+        "headerParameters": {
           "parameters": [
-            { "name": "model", "value": "google/gemini-flash-1.5" },
             {
-              "name": "messages",
-              "value": "={{ [{ role: 'system', content: 'Eres un asesor académico experto de RutaIA. Se te dará una lista de cursos de la institución y una pregunta de un alumno. \\n\\nREGLAS ESTRICTAS:\\n1. Usa SOLO la información proporcionada en el contexto JSON.\\n2. NUNCA inventes cursos, herramientas o datos.\\n3. Si la información es insuficiente, reconócelo explícitamente.\\n4. El estudiante tiene nivel: ' + $('Webhook (Recibe Consulta)').item.json.body.nivelExperiencia + ' y un área de interés general en: ' + $('Webhook (Recibe Consulta)').item.json.body.areaInteres + '.\\n5. Escribe una respuesta amigable, fundamentando por qué recomiendas cada curso del contexto.\\n\\nCONTEXTO DE CURSOS:\\n' + JSON.stringify($json.result.map(r => r.payload)) }, { role: 'user', content: $('Webhook (Recibe Consulta)').item.json.body.pregunta }] }}"
+              "name": "Authorization",
+              "value": "Bearer "
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
-        "headerParameters": {
-          "parameters": [
-            { "name": "Authorization", "value": "Bearer AQUI_TU_OPENROUTER_API_KEY" }
-          ]
-        }
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  model: 'openai/gpt-oss-20b',\n  messages: [\n    { role: 'system', content: 'Eres un asesor académico de RutaIA.' },\n    { role: 'user', content: $json.prompt }\n  ],\n  temperature: 0.3\n}) }}",
+        "options": {}
       },
-      "name": "OpenRouter (LLM Generación)",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 3,
-      "position": [ 800, 150 ]
+      "typeVersion": 4.5,
+      "position": [
+        980,
+        80
+      ],
+      "id": "node-llm-chat",
+      "name": "Generar Respuesta con LLM"
+    },
+    {
+      "parameters": {
+        "jsCode": "const respuestaLLM = $input.first().json;\nconst contexto = $('Construir Contexto RAG').first().json;\n\nconst texto = respuestaLLM.choices?.[0]?.message?.content ?? 'Te sugerimos los cursos relacionados a continuación.';\n\nreturn [{\n  json: {\n    consultaId: contexto.consultaId,\n    pregunta: contexto.pregunta,\n    estado: 'Respondida',\n    respuesta: texto,\n    fuentes: contexto.cursos.map(c => ({\n      cursoId: c.cursoId,\n      similitud: c.similitud\n    }))\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        80
+      ],
+      "id": "node-formato-spring",
+      "name": "Formato Respuesta Spring Boot"
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"consultaId\": \"{{ $('Webhook (Recibe Consulta)').item.json.body.consultaId }}\",\n  \"respuesta\": \"{{ $json.choices[0].message.content }}\",\n  \"estado\": \"Respondida\",\n  \"fuentes\": {{ JSON.stringify($('Qdrant (Búsqueda Vectorial)').item.json.result.map(item => ({ cursoId: item.payload.id, similitud: item.score }))) }}\n}",
-        "options": {}
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 200
+        }
       },
-      "name": "Respuesta (Exito RAG)",
       "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1380,
+        80
+      ],
+      "id": "node-resp-exito",
+      "name": "Responder Éxito (Fuentes)"
+    },
+    {
+      "parameters": {
+        "content": "### FLUJO RAG - RUTAIA\n\n1. Bifurcación temprana si la pregunta está vacía.\n2. Búsqueda vectorial con filtro determinista de cursos activos.\n3. Bifurcación de umbral de relevancia: Si ningún curso supera el umbral (0.45), corta de inmediato y responde 'Sin resultados' sin llamar al LLM.\n4. Rama de éxito: Construye contexto estricto, genera con LLM y responde a Spring Boot con las fuentes y similitudes.",
+        "height": 520,
+        "width": 2200,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [ 1000, 150 ]
+      "position": [
+        -740,
+        0
+      ],
+      "id": "node-sticky-doc",
+      "name": "Documentación Visual RAG"
     }
   ],
   "connections": {
-    "Webhook (Recibe Consulta)": {
-      "main": [ [ { "node": "OpenRouter (Embedding)", "type": "main", "index": 0 } ] ]
-    },
-    "OpenRouter (Embedding)": {
-      "main": [ [ { "node": "Qdrant (Búsqueda Vectorial)", "type": "main", "index": 0 } ] ]
-    },
-    "Qdrant (Búsqueda Vectorial)": {
-      "main": [ [ { "node": "If (Supera Umbral 0.7)", "type": "main", "index": 0 } ] ]
-    },
-    "If (Supera Umbral 0.7)": {
+    "Webhook Consulta": {
       "main": [
-        [ { "node": "OpenRouter (LLM Generación)", "type": "main", "index": 0 } ],
-        [ { "node": "Respuesta (Sin Resultados)", "type": "main", "index": 0 } ]
+        [
+          {
+            "node": "Validar Pregunta",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
-    "OpenRouter (LLM Generación)": {
-      "main": [ [ { "node": "Respuesta (Exito RAG)", "type": "main", "index": 0 } ] ]
+    "Validar Pregunta": {
+      "main": [
+        [
+          {
+            "node": "Prepara Config & Filtros",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder Error Validación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Config & Filtros": {
+      "main": [
+        [
+          {
+            "node": "Embedding Pregunta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding Pregunta": {
+      "main": [
+        [
+          {
+            "node": "Preparar Vector Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Vector Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Buscar en Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar en Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Supera Umbral?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supera Umbral?": {
+      "main": [
+        [
+          {
+            "node": "Construir Contexto RAG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder Sin Resultados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir Contexto RAG": {
+      "main": [
+        [
+          {
+            "node": "Generar Respuesta con LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Respuesta con LLM": {
+      "main": [
+        [
+          {
+            "node": "Formato Respuesta Spring Boot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formato Respuesta Spring Boot": {
+      "main": [
+        [
+          {
+            "node": "Responder Éxito (Fuentes)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "5e178e1de6857b6a7faf535a8b0a74af83d930683d763dd9ee064bf9fcf80faa"
   }
 }

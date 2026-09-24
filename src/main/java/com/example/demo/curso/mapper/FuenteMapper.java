@@ -15,11 +15,17 @@ public class FuenteMapper {
         String recId = fuente.getRecomendacion() != null ? fuente.getRecomendacion().getId() : null;
         String curId = fuente.getCurso() != null ? fuente.getCurso().getId() : null;
         String curNombre = fuente.getCurso() != null ? fuente.getCurso().getNombre() : null;
+        String curDescripcion = fuente.getCurso() != null ? fuente.getCurso().getDescripcion() : null;
+        String categoriaNombre = (fuente.getCurso() != null && fuente.getCurso().getCategoria() != null)
+                ? fuente.getCurso().getCategoria().getNombre()
+                : null;
         return new FuenteResponse(
                 fuente.getId(),
                 recId,
                 curId,
                 curNombre,
+                curDescripcion,
+                categoriaNombre,
                 fuente.getSimilitud()
         );
     }

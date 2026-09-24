@@ -15,5 +15,7 @@ public class FuenteResponse {
     private String recomendacionId;
     private String cursoId;
     private String cursoNombre;
+    private String cursoDescripcion;
+    private String categoriaNombre;
     private Double similitud;
 }
