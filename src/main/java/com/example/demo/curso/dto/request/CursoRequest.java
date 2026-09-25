@@ -43,6 +43,12 @@ public class CursoRequest {
     @Min(value = 1, message = "La duración debe ser mayor que cero")
     private Integer duracion;
 
+    @Schema(description = "Modalidad del curso", example = "Virtual")
+    private String modalidad = "Virtual";
+
+    @Schema(description = "Precio del curso", example = "0.00")
+    private java.math.BigDecimal precio = java.math.BigDecimal.ZERO;
+
     @Schema(description = "Estado de vigencia del curso en el catálogo (activo o inactivo)", example = "true")
     private Boolean estado = true;
 }

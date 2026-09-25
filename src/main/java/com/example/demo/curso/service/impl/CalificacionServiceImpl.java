@@ -4,11 +4,11 @@ import com.example.demo.curso.dto.request.CalificacionRequest;
 import com.example.demo.curso.dto.response.CalificacionResponse;
 import com.example.demo.curso.mapper.CalificacionMapper;
 import com.example.demo.curso.model.Calificacion;
-import com.example.demo.curso.model.Estudiante;
 import com.example.demo.curso.model.Recomendacion;
+import com.example.demo.curso.model.Usuario;
 import com.example.demo.curso.repository.CalificacionRepository;
-import com.example.demo.curso.repository.EstudianteRepository;
 import com.example.demo.curso.repository.RecomendacionRepository;
+import com.example.demo.curso.repository.UsuarioRepository;
 import com.example.demo.curso.service.CalificacionService;
 import com.example.demo.exception.BusinessRuleException;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -27,7 +27,7 @@ public class CalificacionServiceImpl implements CalificacionService {
 
     private final CalificacionRepository calificacionRepository;
     private final RecomendacionRepository recomendacionRepository;
-    private final EstudianteRepository estudianteRepository;
+    private final UsuarioRepository usuarioRepository;
     private final CalificacionMapper calificacionMapper;
 
     @Override
@@ -42,12 +42,16 @@ public class CalificacionServiceImpl implements CalificacionService {
             throw new BusinessRuleException("Esta recomendación ya fue calificada");
         }
 
-        Estudiante estudiante = estudianteRepository.findById(request.getEstudianteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Estudiante", request.getEstudianteId()));
+        if (request.getEstudianteId() == null || request.getEstudianteId().trim().isEmpty()) {
+            throw new BusinessRuleException("El identificador del estudiante es obligatorio.");
+        }
+
+        Usuario usuario = usuarioRepository.findById(request.getEstudianteId().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", request.getEstudianteId()));
 
         Calificacion calificacion = new Calificacion(
                 UUID.randomUUID().toString(),
-                estudiante,
+                usuario,
                 recomendacion,
                 request.getPuntuacion(),
                 request.getComentario()

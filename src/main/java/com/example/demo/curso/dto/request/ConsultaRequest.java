@@ -15,8 +15,7 @@ import lombok.Setter;
 @Schema(description = "Solicitud de consulta académica en lenguaje natural para el pipeline RAG")
 public class ConsultaRequest {
 
-    @Schema(description = "Identificador único del estudiante que realiza la consulta", example = "est-001", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "El ID del estudiante es obligatorio")
+    @Schema(description = "Identificador único del estudiante (opcional si se proporciona en token)", example = "est-001")
     private String estudianteId;
 
     @Schema(description = "Pregunta, interés vocacional o necesidad de formación en lenguaje natural", example = "Quiero aprender desarrollo backend con Java y microservicios", requiredMode = Schema.RequiredMode.REQUIRED)

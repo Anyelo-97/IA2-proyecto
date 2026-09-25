@@ -46,6 +46,12 @@ public class Curso {
     @Column(name = "duracion", nullable = false)
     private Integer duracion;
 
+    @Column(name = "modalidad", length = 50, nullable = false)
+    private String modalidad = "Virtual";
+
+    @Column(name = "precio", nullable = false, precision = 10, scale = 2)
+    private java.math.BigDecimal precio = java.math.BigDecimal.ZERO;
+
     @Column(name = "estado", nullable = false)
     private Boolean estado = true;
 }

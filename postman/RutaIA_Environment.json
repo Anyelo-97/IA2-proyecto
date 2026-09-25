@@ -1,0 +1,99 @@
+{
+  "id": "e98e2170-5b58-4da9-bf0a-6e57dfc2c310",
+  "name": "RutaIA Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "jwt_token_estudiante",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "jwt_token_admin",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "estudiante_id",
+      "value": "est-001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_id",
+      "value": "adm-001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "curso_id",
+      "value": "c0000001-0000-4000-8000-000000000001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consulta_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "recomendacion_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "calificacion_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "curso_id_creado",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "categoria_id",
+      "value": "cat-001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "nivel_id",
+      "value": "niv-001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consulta_id_admin",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "recomendacion_id_admin",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "calificacion_id_admin",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-09-25T01:34:00.000Z",
+  "_postman_exported_using": "Postman/10.0.0"
+}

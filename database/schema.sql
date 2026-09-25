@@ -82,8 +82,8 @@ CREATE TABLE IF NOT EXISTS consulta (
     pregunta VARCHAR(1000) NOT NULL,
     fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(50) NOT NULL DEFAULT 'Pendiente',
-    CONSTRAINT fk_consulta_estudiante
-        FOREIGN KEY (estudiante_id) REFERENCES estudiante(id),
+    CONSTRAINT fk_consulta_usuario
+        FOREIGN KEY (estudiante_id) REFERENCES usuario(id),
     CONSTRAINT chk_consulta_estado
         CHECK (estado IN ('Pendiente', 'Respondida', 'Sin resultados', 'Error')),
     INDEX idx_consulta_estudiante (estudiante_id),
@@ -120,8 +120,8 @@ CREATE TABLE IF NOT EXISTS calificacion (
     recomendacion_id VARCHAR(255) NOT NULL,
     puntuacion INT NOT NULL,
     comentario VARCHAR(1000),
-    CONSTRAINT fk_calificacion_estudiante
-        FOREIGN KEY (estudiante_id) REFERENCES estudiante(id),
+    CONSTRAINT fk_calificacion_usuario
+        FOREIGN KEY (estudiante_id) REFERENCES usuario(id),
     CONSTRAINT fk_calificacion_recomendacion
         FOREIGN KEY (recomendacion_id) REFERENCES recomendacion(id),
     CONSTRAINT chk_calificacion_puntuacion

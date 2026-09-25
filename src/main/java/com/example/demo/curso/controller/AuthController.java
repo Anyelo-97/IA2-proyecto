@@ -14,7 +14,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import com.example.demo.curso.model.Usuario;
+import com.example.demo.security.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "0. Autenticación y Cuentas", description = "Inicio de sesión, registro de cuentas de estudiantes/administradores y consulta de perfil actual.")
 @RestController
@@ -64,17 +69,23 @@ public class AuthController {
 
     @Operation(
             summary = "Obtener perfil del usuario autenticado",
-            description = "Devuelve los datos del perfil del usuario actualmente autenticado mediante el encabezado de autorización Bearer."
+            description = "Devuelve los datos del perfil del usuario actualmente autenticado mediante el contexto de seguridad o encabezado Bearer."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Perfil recuperado exitosamente"),
             @ApiResponse(responseCode = "401", description = "Token no proporcionado o inválido")
     })
     @GetMapping("/me")
-    public ResponseEntity<UsuarioResponse> me(@RequestHeader(value = "Authorization", required = false) String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<UsuarioResponse> me(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            return ResponseEntity.ok(authService.obtenerUsuario(authorization.substring(7)));
         }
-        return ResponseEntity.ok(authService.obtenerUsuario(authorization.substring(7)));
+        if (userDetails != null && userDetails.getUsuario() != null) {
+            Usuario u = userDetails.getUsuario();
+            return ResponseEntity.ok(new UsuarioResponse(u.getId(), u.getEmail(), u.getEmail(), u.getRol()));
+        }
+        return ResponseEntity.status(401).build();
     }
 }

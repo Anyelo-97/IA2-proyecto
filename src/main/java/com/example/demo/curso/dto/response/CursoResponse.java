@@ -37,6 +37,12 @@ public class CursoResponse {
     @Schema(description = "Duración total en horas académicas", example = "40")
     private Integer duracion;
 
+    @Schema(description = "Modalidad de impartición del curso", example = "Virtual")
+    private String modalidad;
+
+    @Schema(description = "Precio del curso en USD", example = "0.00")
+    private java.math.BigDecimal precio;
+
     @Schema(description = "Estado de vigencia del curso (true: activo, false: inactivo)", example = "true")
     private Boolean estado;
 

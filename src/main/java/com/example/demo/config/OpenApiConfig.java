@@ -22,7 +22,13 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("RutaIA API")
                         .version("1.0.0")
-                        .description("API REST para el sistema de recomendacion de cursos academicos mediante arquitectura RAG."))
+                        .description("API REST para el sistema de recomendación de cursos académicos mediante arquitectura RAG sincrónica.\n\n" +
+                                "Seguridad y Roles:\n" +
+                                "- Token JWT Bearer firmado (HMAC-SHA256). Iniciar sesión en POST /api/auth/login o registro público en POST /api/auth/register/estudiante.\n" +
+                                "- Rol ESTUDIANTE: Puede consultar el catálogo público, ejecutar consultas inteligentes en lenguaje natural (/api/consultas), calificar recomendaciones y acceder a su historial personal. " +
+                                "El identificador del estudiante se extrae de forma segura desde el token JWT decodificado en el servidor para evitar suplantación de identidad.\n" +
+                                "- Rol ADMINISTRADOR: Puede crear, actualizar y desactivar cursos (sincronizados con el vector store Qdrant vía n8n), gestionar categorías y administrar cuentas de estudiantes.\n\n" +
+                                "Uso en Swagger: Presiona el botón 'Authorize' e introduce el token obtenido en el login con el prefijo Bearer."))
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .components(new Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME,
@@ -31,7 +37,7 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("Token JWT en formato Bearer")))
+                                        .description("Token JWT en formato Bearer (ingresar: Bearer <token>)")))
                 .tags(List.of(
                         new Tag().name("0. Autenticación y Cuentas").description("Inicio de sesión, registro y perfiles de usuarios."),
                         new Tag().name("1. Consultas Inteligentes (RAG)").description("Pipeline RAG e historial de consultas."),

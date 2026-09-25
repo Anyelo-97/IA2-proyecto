@@ -453,6 +453,8 @@ const NAV = {
   ],
   admin: [
     {panel:"catalogo", label:"Catálogo", icon:"📖"},
+    {panel:"consulta", label:"Consulta", icon:"✦"},
+    {panel:"historial", label:"Historial", icon:"📜"},
     {panel:"estudiantes", label:"Estudiantes", icon:"👥"},
     {panel:"admin", label:"Cursos", icon:"⚙️"},
     {panel:"stats", label:"Estadísticas", icon:"📊"}
@@ -923,19 +925,22 @@ async function renderStudents(){
         </td>
         <td><span class="pill">${escapeHtml(s.nivelExperiencia)}</span></td>
         <td><span class="pill">${escapeHtml(s.areaInteres || "—")}</span></td>
-        <td><button class="btn btn-danger btn-sm del-student-btn">Eliminar</button></td>`;
+        <td>${s.id === state.user?.id ? '<span class="pill" style="opacity:.7">Tu cuenta</span>' : '<button class="btn btn-danger btn-sm del-student-btn">Eliminar</button>'}</td>`;
 
       tr.querySelector(".copy-student-uuid").addEventListener("click", () => copyToClipboard(s.id, "ID copiado."));
-      tr.querySelector(".del-student-btn").addEventListener("click", async ()=>{
-        if(!confirm(`¿Eliminar la cuenta de ${s.nombre}?`)) return;
-        try{
-          await api.eliminarEstudiante(s.id);
-          toast("Estudiante eliminado.");
-          renderStudents();
-        }catch(err){
-          toast(err.message, true);
-        }
-      });
+      const delBtn = tr.querySelector(".del-student-btn");
+      if(delBtn){
+        delBtn.addEventListener("click", async ()=>{
+          if(!confirm(`¿Eliminar la cuenta de ${s.nombre}?`)) return;
+          try{
+            await api.eliminarEstudiante(s.id);
+            toast("Estudiante eliminado.");
+            renderStudents();
+          }catch(err){
+            toast(err.message, true);
+          }
+        });
+      }
       tbody.appendChild(tr);
     });
   }catch(e){

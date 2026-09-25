@@ -4,11 +4,11 @@ import com.example.demo.curso.dto.request.CalificacionRequest;
 import com.example.demo.curso.dto.response.CalificacionResponse;
 import com.example.demo.curso.mapper.CalificacionMapper;
 import com.example.demo.curso.model.Calificacion;
-import com.example.demo.curso.model.Estudiante;
 import com.example.demo.curso.model.Recomendacion;
+import com.example.demo.curso.model.Usuario;
 import com.example.demo.curso.repository.CalificacionRepository;
-import com.example.demo.curso.repository.EstudianteRepository;
 import com.example.demo.curso.repository.RecomendacionRepository;
+import com.example.demo.curso.repository.UsuarioRepository;
 import com.example.demo.curso.service.impl.CalificacionServiceImpl;
 import com.example.demo.exception.BusinessRuleException;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -36,7 +36,7 @@ class CalificacionServiceImplTest {
     private RecomendacionRepository recomendacionRepository;
 
     @Mock
-    private EstudianteRepository estudianteRepository;
+    private UsuarioRepository usuarioRepository;
 
     @Spy
     private CalificacionMapper calificacionMapper;
@@ -46,7 +46,7 @@ class CalificacionServiceImplTest {
 
     private CalificacionRequest request;
     private Recomendacion recomendacion;
-    private Estudiante estudiante;
+    private Usuario usuario;
 
     @BeforeEach
     void setUp() {
@@ -54,15 +54,14 @@ class CalificacionServiceImplTest {
         recomendacion = new Recomendacion();
         recomendacion.setId("rec-1");
 
-        estudiante = new Estudiante();
-        estudiante.setId("est-1");
+        usuario = new Usuario("est-1", "test@univ.edu", "pass", "ESTUDIANTE");
     }
 
     @Test
     void calificar_exitoso() {
         when(recomendacionRepository.findById("rec-1")).thenReturn(Optional.of(recomendacion));
         when(calificacionRepository.existsByRecomendacion_Id("rec-1")).thenReturn(false);
-        when(estudianteRepository.findById("est-1")).thenReturn(Optional.of(estudiante));
+        when(usuarioRepository.findById("est-1")).thenReturn(Optional.of(usuario));
         when(calificacionRepository.save(any(Calificacion.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         CalificacionResponse response = calificacionService.calificar(request);
@@ -98,7 +97,7 @@ class CalificacionServiceImplTest {
     void calificar_estudianteNoExiste_lanzaResourceNotFoundException() {
         when(recomendacionRepository.findById("rec-1")).thenReturn(Optional.of(recomendacion));
         when(calificacionRepository.existsByRecomendacion_Id("rec-1")).thenReturn(false);
-        when(estudianteRepository.findById("est-1")).thenReturn(Optional.empty());
+        when(usuarioRepository.findById("est-1")).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> calificacionService.calificar(request));
         verify(calificacionRepository, never()).save(any());
@@ -106,7 +105,7 @@ class CalificacionServiceImplTest {
 
     @Test
     void obtenerPorRecomendacion_exitoso() {
-        Calificacion calificacion = new Calificacion("cal-1", estudiante, recomendacion, 4, "Bueno");
+        Calificacion calificacion = new Calificacion("cal-1", usuario, recomendacion, 4, "Bueno");
         when(calificacionRepository.findByRecomendacion_Id("rec-1")).thenReturn(Optional.of(calificacion));
 
         CalificacionResponse response = calificacionService.obtenerPorRecomendacion("rec-1");

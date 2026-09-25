@@ -11,6 +11,7 @@ import com.example.demo.curso.model.Curso;
 import com.example.demo.curso.model.Estudiante;
 import com.example.demo.curso.model.Fuente;
 import com.example.demo.curso.model.Recomendacion;
+import com.example.demo.curso.repository.UsuarioRepository;
 import com.example.demo.curso.repository.ConsultaRepository;
 import com.example.demo.curso.repository.CursoRepository;
 import com.example.demo.curso.repository.EstudianteRepository;
@@ -60,6 +61,9 @@ class ConsultaServiceImplTest {
 
     @Mock
     private EstudianteRepository estudianteRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
 
     @Spy
     private FuenteMapper fuenteMapper;
@@ -181,6 +185,7 @@ class ConsultaServiceImplTest {
         ConsultaRequest request = new ConsultaRequest("no-existe", "¿Pregunta?");
 
         when(estudianteRepository.findById("no-existe")).thenReturn(Optional.empty());
+        when(usuarioRepository.existsById("no-existe")).thenReturn(false);
 
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> consultaService.crearConsulta(request));

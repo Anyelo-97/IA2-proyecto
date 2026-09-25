@@ -11,6 +11,8 @@ import com.example.demo.curso.model.Consulta;
 import com.example.demo.curso.model.Estudiante;
 import com.example.demo.curso.model.Fuente;
 import com.example.demo.curso.model.Recomendacion;
+import com.example.demo.curso.model.Usuario;
+import com.example.demo.curso.repository.UsuarioRepository;
 import com.example.demo.curso.repository.ConsultaRepository;
 import com.example.demo.curso.repository.CursoRepository;
 import com.example.demo.curso.repository.EstudianteRepository;
@@ -46,6 +48,7 @@ public class ConsultaServiceImpl implements ConsultaService {
     private final FuenteRepository fuenteRepository;
     private final CursoRepository cursoRepository;
     private final EstudianteRepository estudianteRepository;
+    private final UsuarioRepository usuarioRepository;
     private final FuenteMapper fuenteMapper;
 
     @Override
@@ -54,18 +57,29 @@ public class ConsultaServiceImpl implements ConsultaService {
         log.info("Creando consulta para estudiante: {}", request.getEstudianteId());
         validarPregunta(request.getPregunta());
 
-        Estudiante estudiante = estudianteRepository.findById(request.getEstudianteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Estudiante no encontrado con ID: " + request.getEstudianteId()));
+        if (request.getEstudianteId() == null || request.getEstudianteId().trim().isEmpty()) {
+            throw new BusinessRuleException("El ID del estudiante es obligatorio.");
+        }
 
-        Consulta consulta = registrarConsultaInicial(estudiante.getId(), request.getPregunta().trim());
+        String userId = request.getEstudianteId().trim();
+        Estudiante estudiante = estudianteRepository.findById(userId).orElse(null);
+
+        String nivelExperiencia = (estudiante != null) ? estudiante.getNivelExperiencia() : "Avanzado";
+        String areaInteres = (estudiante != null) ? estudiante.getAreaInteres() : "Administración y Docencia";
+
+        if (estudiante == null && !usuarioRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("Estudiante no encontrado con ID: " + userId);
+        }
+
+        Consulta consulta = registrarConsultaInicial(userId, request.getPregunta().trim());
         log.info("Consulta creada exitosamente con ID: {}", consulta.getId());
 
         try {
             N8nQueryResponse response = n8nQueryService.consultarRAG(
                     consulta.getId(),
                     consulta.getPregunta(),
-                    estudiante.getNivelExperiencia(),
-                    estudiante.getAreaInteres()
+                    nivelExperiencia,
+                    areaInteres
             );
 
             if (esRespuestaSinResultados(response)) {

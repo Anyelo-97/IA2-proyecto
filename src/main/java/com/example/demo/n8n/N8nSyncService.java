@@ -36,6 +36,8 @@ public class N8nSyncService {
             payload.put("categoriaNombre", curso.getCategoriaNombre());
             payload.put("nivelNombre", curso.getNivelNombre());
             payload.put("duracion", curso.getDuracion());
+            payload.put("modalidad", curso.getModalidad() != null ? curso.getModalidad() : "Virtual");
+            payload.put("precio", curso.getPrecio() != null ? curso.getPrecio() : java.math.BigDecimal.ZERO);
             payload.put("estado", curso.getEstado());
 
             restClient.post()

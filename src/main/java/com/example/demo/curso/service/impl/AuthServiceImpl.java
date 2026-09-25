@@ -13,27 +13,27 @@ import com.example.demo.curso.repository.EstudianteRepository;
 import com.example.demo.curso.repository.UsuarioRepository;
 import com.example.demo.curso.service.AuthService;
 import com.example.demo.exception.BusinessRuleException;
-import com.example.demo.util.PasswordUtils;
+import com.example.demo.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     private final UsuarioRepository usuarioRepository;
     private final EstudianteRepository estudianteRepository;
     private final AdministradorRepository administradorRepository;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${rutaia.auth.admin-registration-code:}")
     private String adminRegistrationCode;
-
-    private final Map<String, String> sessions = new ConcurrentHashMap<>();
 
     @Override
     @Transactional(readOnly = true)
@@ -46,10 +46,12 @@ public class AuthServiceImpl implements AuthService {
                 : request.getPassword();
         Usuario usuario = usuarioRepository.findByEmailIgnoreCase(identificador)
                 .orElseGet(() -> usuarioRepository.findById(identificador).orElse(null));
-        if (usuario == null || !passwordMatches(password, usuario.getPassword())) {
+        if (usuario == null || !passwordEncoder.matches(password, usuario.getPassword())) {
             throw new BusinessRuleException("Credenciales incorrectas.");
         }
-        return createSession(usuario);
+        String nombre = obtenerNombreUsuario(usuario);
+        String token = jwtService.generateToken(usuario.getId(), usuario.getEmail(), usuario.getRol(), nombre);
+        return new AuthResponse(token, toResponse(usuario, nombre));
     }
 
     @Override
@@ -57,10 +59,11 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse registrarEstudiante(RegistroEstudianteRequest request) {
         ensureEmailAvailable(request.getEmail());
         String id = UUID.randomUUID().toString();
-        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), PasswordUtils.sha256(request.getPassword()), "ESTUDIANTE");
+        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), passwordEncoder.encode(request.getPassword()), "ESTUDIANTE");
         usuario = usuarioRepository.save(usuario);
         estudianteRepository.save(new Estudiante(id, request.getNombre().trim(), request.getNivelExperiencia(), request.getAreaInteres().trim(), usuario));
-        return createSession(usuario);
+        String token = jwtService.generateToken(usuario.getId(), usuario.getEmail(), usuario.getRol(), request.getNombre().trim());
+        return new AuthResponse(token, toResponse(usuario, request.getNombre().trim()));
     }
 
     @Override
@@ -71,18 +74,32 @@ public class AuthServiceImpl implements AuthService {
         }
         ensureEmailAvailable(request.getEmail());
         String id = UUID.randomUUID().toString();
-        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), PasswordUtils.sha256(request.getPassword()), "ADMINISTRADOR");
+        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), passwordEncoder.encode(request.getPassword()), "ADMINISTRADOR");
         usuario = usuarioRepository.save(usuario);
         administradorRepository.save(new Administrador(id, request.getNombre().trim(), usuario));
-        return createSession(usuario);
+        String token = jwtService.generateToken(usuario.getId(), usuario.getEmail(), usuario.getRol(), request.getNombre().trim());
+        return new AuthResponse(token, toResponse(usuario, request.getNombre().trim()));
     }
 
     @Override
     @Transactional(readOnly = true)
     public UsuarioResponse obtenerUsuario(String token) {
-        String id = sessions.get(token);
-        if (id == null) throw new BusinessRuleException("Sesión inválida.");
-        return toResponse(usuarioRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Sesión inválida.")));
+        try {
+            String userId = jwtService.extractUserId(token);
+            if (userId == null || userId.isBlank()) {
+                userId = jwtService.extractEmail(token);
+            }
+            if (userId == null || userId.isBlank()) {
+                throw new BusinessRuleException("Sesión inválida.");
+            }
+            final String searchId = userId;
+            Usuario usuario = usuarioRepository.findById(searchId)
+                    .or(() -> usuarioRepository.findByEmailIgnoreCase(searchId))
+                    .orElseThrow(() -> new BusinessRuleException("Sesión inválida."));
+            return toResponse(usuario);
+        } catch (Exception e) {
+            throw new BusinessRuleException("Sesión inválida.");
+        }
     }
 
     private void ensureEmailAvailable(String email) {
@@ -91,28 +108,22 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private AuthResponse createSession(Usuario usuario) {
-        String token = UUID.randomUUID().toString();
-        sessions.put(token, usuario.getId());
-        return new AuthResponse(token, toResponse(usuario));
-    }
-
-    private UsuarioResponse toResponse(Usuario usuario) {
+    private String obtenerNombreUsuario(Usuario usuario) {
         String nombre = usuario.getEmail();
         if ("ESTUDIANTE".equals(usuario.getRol())) {
             nombre = estudianteRepository.findById(usuario.getId()).map(Estudiante::getNombre).orElse(nombre);
         } else if ("ADMINISTRADOR".equals(usuario.getRol())) {
             nombre = administradorRepository.findById(usuario.getId()).map(Administrador::getNombre).orElse(nombre);
         }
+        return nombre;
+    }
+
+    private UsuarioResponse toResponse(Usuario usuario) {
+        String nombre = obtenerNombreUsuario(usuario);
         return new UsuarioResponse(usuario.getId(), nombre, usuario.getEmail(), usuario.getRol());
     }
 
-    private boolean passwordMatches(String raw, String stored) {
-        if (stored == null) {
-            return false;
-        }
-        String normalizedStored = stored.trim();
-        String hashedRaw = PasswordUtils.sha256(raw);
-        return normalizedStored.equalsIgnoreCase(hashedRaw) || normalizedStored.equals(raw);
+    private UsuarioResponse toResponse(Usuario usuario, String nombre) {
+        return new UsuarioResponse(usuario.getId(), nombre, usuario.getEmail(), usuario.getRol());
     }
 }

@@ -15,6 +15,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.example.demo.security.CustomUserDetails;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,18 +47,28 @@ public class EstudianteController {
 
     @Operation(
             summary = "Obtener perfil de estudiante por ID",
-            description = "Recupera el perfil académico y datos de contacto de un estudiante específico mediante su identificador único."
+            description = "Recupera el perfil académico y datos de contacto de un estudiante específico mediante su identificador único. Los estudiantes solo pueden consultar su propio perfil; los administradores pueden consultar cualquier perfil."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Perfil de estudiante obtenido exitosamente",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = EstudianteResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: no puede consultar el perfil de otro estudiante", content = @Content),
             @ApiResponse(responseCode = "404", description = "Estudiante no encontrado", content = @Content)
     })
     @GetMapping("/{id}")
     public ResponseEntity<EstudianteResponse> buscar(
-            @Parameter(description = "Identificador único del estudiante", example = "est-001") @PathVariable String id) {
+            @Parameter(description = "Identificador único del estudiante", example = "est-001") @PathVariable String id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails != null && userDetails.getId() != null && !esAdmin(userDetails) && !userDetails.getId().equalsIgnoreCase(id)) {
+            throw new AccessDeniedException("No tiene permisos para consultar el perfil de otro estudiante.");
+        }
         return service.buscarPorId(id).map(mapper::entityToDto)
                 .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    private boolean esAdmin(CustomUserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMINISTRADOR".equals(a.getAuthority()) || "ROLE_ADMIN".equals(a.getAuthority()));
     }
 
     @Operation(

@@ -33,7 +33,7 @@ public class Calificacion {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "estudiante_id", nullable = false)
-    private Estudiante estudiante;
+    private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "recomendacion_id", nullable = false, unique = true)
@@ -46,4 +46,12 @@ public class Calificacion {
 
     @Column(name = "comentario", length = 1000)
     private String comentario;
+
+    public Usuario getEstudiante() {
+        return usuario;
+    }
+
+    public void setEstudiante(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }

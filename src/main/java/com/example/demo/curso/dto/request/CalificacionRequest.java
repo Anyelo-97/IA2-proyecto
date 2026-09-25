@@ -21,8 +21,7 @@ public class CalificacionRequest {
     @Schema(description = "Identificador opcional de la calificación", example = "cal-001")
     private String id;
 
-    @Schema(description = "Identificador del estudiante que emite la calificación", example = "est-001", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "El identificador del estudiante es obligatorio")
+    @Schema(description = "Identificador del estudiante que emite la calificación (opcional si se proporciona en token)", example = "est-001")
     private String estudianteId;
 
     @Schema(description = "Identificador de la recomendación evaluada", example = "rec-001", requiredMode = Schema.RequiredMode.REQUIRED)

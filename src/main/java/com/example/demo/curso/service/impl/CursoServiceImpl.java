@@ -63,6 +63,12 @@ public class CursoServiceImpl implements CursoService {
         curso.setCategoria(categoria);
         curso.setNivel(nivel);
         curso.setDuracion(request.getDuracion());
+        if (request.getModalidad() != null && !request.getModalidad().isBlank()) {
+            curso.setModalidad(request.getModalidad().trim());
+        }
+        if (request.getPrecio() != null) {
+            curso.setPrecio(request.getPrecio());
+        }
         curso.setEstado(request.getEstado() == null || request.getEstado());
         Curso guardado = cursoRepository.save(curso);
         CursoResponse response = cursoMapper.entityToDto(guardado);
@@ -113,6 +119,12 @@ public class CursoServiceImpl implements CursoService {
         curso.setCategoria(categoria);
         curso.setNivel(nivel);
         curso.setDuracion(request.getDuracion());
+        if (request.getModalidad() != null && !request.getModalidad().isBlank()) {
+            curso.setModalidad(request.getModalidad().trim());
+        }
+        if (request.getPrecio() != null) {
+            curso.setPrecio(request.getPrecio());
+        }
 
         if (request.getEstado() != null) {
             curso.setEstado(request.getEstado());
