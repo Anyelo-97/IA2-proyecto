@@ -404,6 +404,17 @@ button{ font-family: inherit; }
   font-size: .96rem;
   max-width: 62ch;
 }
+.history-toolbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.history-download-btn{
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+}
 
 /* Cards */
 .card{

@@ -231,12 +231,12 @@
 
     <!-- Panel 3: Historial -->
     <section class="panel" id="panel-historial">
-      <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
+      <div class="section-head history-toolbar">
         <div>
           <h2>Mi historial</h2>
           <p>Consultas realizadas y recomendaciones recibidas.</p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="downloadHistoryBtn" type="button">↓ Descargar historial (.txt)</button>
+        <button class="btn btn-primary btn-sm history-download-btn" id="downloadHistoryBtn" type="button" aria-label="Descargar historial en archivo de texto">Descargar historial (.txt)</button>
       </div>
       <div id="historyList" class="history-list"></div>
     </section>
