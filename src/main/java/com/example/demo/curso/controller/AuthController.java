@@ -6,10 +6,11 @@ import com.example.demo.curso.dto.request.RegistroEstudianteRequest;
 import com.example.demo.curso.dto.response.AuthResponse;
 import com.example.demo.curso.dto.response.UsuarioResponse;
 import com.example.demo.curso.service.AuthService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,6 @@ import com.example.demo.curso.model.Usuario;
 import com.example.demo.security.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "0. Autenticación y Cuentas", description = "Inicio de sesión, registro de cuentas de estudiantes/administradores y consulta de perfil actual.")
 @RestController
@@ -36,6 +35,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Autenticación exitosa"),
             @ApiResponse(responseCode = "400", description = "Credenciales inválidas o datos incompletos")
     })
+    @SecurityRequirements
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
@@ -49,6 +49,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Estudiante registrado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de registro inválidos o correo ya registrado")
     })
+    @SecurityRequirements
     @PostMapping("/register/estudiante")
     public ResponseEntity<AuthResponse> registrarEstudiante(@Valid @RequestBody RegistroEstudianteRequest request) {
         return ResponseEntity.ok(authService.registrarEstudiante(request));
@@ -62,6 +63,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Administrador registrado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Código institucional incorrecto o correo ya registrado")
     })
+    @SecurityRequirements
     @PostMapping("/register/admin")
     public ResponseEntity<AuthResponse> registrarAdministrador(@Valid @RequestBody RegistroAdministradorRequest request) {
         return ResponseEntity.ok(authService.registrarAdministrador(request));
@@ -75,6 +77,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Perfil recuperado exitosamente"),
             @ApiResponse(responseCode = "401", description = "Token no proporcionado o inválido")
     })
+    @SecurityRequirement(name = "BearerAuth")
     @GetMapping("/me")
     public ResponseEntity<UsuarioResponse> me(
             @AuthenticationPrincipal CustomUserDetails userDetails,

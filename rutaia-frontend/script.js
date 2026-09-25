@@ -289,6 +289,101 @@ const api = {
   estadisticas: () => http("/estadisticas")
 };
 
+function formatHistoryText(items){
+  const userName = state.user?.nombre || "Usuario";
+  const userEmail = state.user?.email || "—";
+  const lines = [
+    "RUTAIA - HISTORIAL DE CONSULTAS",
+    `Usuario: ${userName}`,
+    `Correo: ${userEmail}`,
+    `Generado: ${new Date().toLocaleString()}`,
+    "",
+    "============================================================"
+  ];
+
+  items.forEach((item, index) => {
+    const recommendation = item.recomendacion;
+    const courses = item.cursosRecomendados || [];
+    const sources = recommendation?.fuentes || [];
+    const rating = recommendation?.calificacion;
+
+    lines.push(
+      "",
+      `CONSULTA ${index + 1}`,
+      `Fecha: ${item.fecha ? new Date(item.fecha).toLocaleString() : "—"}`,
+      `Estado: ${item.estado || "—"}`,
+      `Pregunta: ${item.pregunta || "—"}`
+    );
+
+    if(recommendation?.contenido || item.resumen){
+      lines.push("", "RECOMENDACIÓN", recommendation.contenido || item.resumen);
+    }
+
+    if(courses.length > 0){
+      lines.push("", "CURSOS RECOMENDADOS");
+      courses.forEach(course => lines.push(`- ${course}`));
+    }else if(sources.length > 0){
+      lines.push("", "CURSOS RECOMENDADOS");
+      sources.forEach(source => lines.push(`- ${source.cursoNombre || source.nombre || "Curso recomendado"}`));
+    }
+
+    if(sources.length > 0){
+      lines.push("", "FUENTES");
+      sources.forEach(source => {
+        const name = source.cursoNombre || source.nombre || "Curso";
+        const similarity = source.similitud === null || source.similitud === undefined
+          ? ""
+          : ` (similitud: ${Number(source.similitud).toFixed(4)})`;
+        lines.push(`- ${name}${similarity}`);
+      });
+    }
+
+    if(rating){
+      lines.push(
+        "",
+        `CALIFICACIÓN: ${rating.puntuacion || "—"}/5`,
+        `Comentario: ${rating.comentario || "Sin comentario"}`
+      );
+    }
+
+    lines.push("", "------------------------------------------------------------");
+  });
+
+  return lines.join("\r\n") + "\r\n";
+}
+
+async function downloadHistory(){
+  const button = $("downloadHistoryBtn");
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = "Preparando archivo…";
+
+  try{
+    const items = await api.historial(state.user.id);
+    if(items.length === 0){
+      toast("No hay historial para descargar.", true);
+      return;
+    }
+
+    const blob = new Blob([formatHistoryText(items)], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `rutaia-historial-${date}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast("Historial descargado correctamente.");
+  }catch(error){
+    toast(error.message, true);
+  }finally{
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
 /* -------------------------------------------------------------
  * Auth & Login Screens
  * ------------------------------------------------------------- */
@@ -527,6 +622,7 @@ $("heroCtaBtn").addEventListener("click", ()=> showPanel("consulta"));
 $("heroCatalogBtn").addEventListener("click", ()=>{
   $("panel-catalogo").scrollIntoView({behavior:"smooth"});
 });
+$("downloadHistoryBtn").addEventListener("click", downloadHistory);
 
 async function enterApp(){
   loginScreen.style.display = "none";

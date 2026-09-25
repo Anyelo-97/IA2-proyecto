@@ -86,6 +86,17 @@ class ConsultaControllerTest {
     }
 
     @Test
+    void testCrearConsultaConIdEstudianteVacioFalla() throws Exception {
+        ConsultaRequest invalidRequest = new ConsultaRequest("   ", "¿Cómo funciona el RAG?");
+
+        mockMvc.perform(post("/api/consultas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.estudianteId").value("El ID del estudiante no puede estar vacío"));
+    }
+
+    @Test
     void testObtenerPorIdEndpoint() throws Exception {
         ConsultaResponse response = new ConsultaResponse(
                 "c-1",

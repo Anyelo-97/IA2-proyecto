@@ -274,6 +274,23 @@ El cliente web es una aplicación de una sola página (SPA) ubicada en `rutaia-f
 4. Tomar una captura de pantalla nitida de la vista completa y guardarla en 'imgs/interfaz_usuario.png'.
 -->
 
+### Evidencias de consultas inteligentes
+
+A continuación se muestran ejemplos de la experiencia de consulta y recomendación generada por RutaIA:
+
+![Consulta 1](imgs/consulta1.png)
+![Consulta 2](imgs/consulta2.png)
+![Consulta 3](imgs/consulta3.png)
+![Consulta 3 (detalle)](imgs/consulta3_2.png)
+![Consulta 4](imgs/consulta4.png)
+![Consulta 5](imgs/consulta5.png)
+![Consulta 6](imgs/consulta6.png)
+![Consulta 7](imgs/consulta7.png)
+![Consulta 8](imgs/consulta8.png)
+![Consulta 8 (detalle)](imgs/consulta8_2.png)
+![Consulta 9](imgs/consulta9.png)
+![Consulta 10](imgs/consulta10.png)
+
 ---
 
 ## 5. Importación y Configuración de Workflows en n8n

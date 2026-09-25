@@ -28,7 +28,7 @@ public class OpenApiConfig {
                                 "- Rol ESTUDIANTE: Puede consultar el catálogo público, ejecutar consultas inteligentes en lenguaje natural (/api/consultas), calificar recomendaciones y acceder a su historial personal. " +
                                 "El identificador del estudiante se extrae de forma segura desde el token JWT decodificado en el servidor para evitar suplantación de identidad.\n" +
                                 "- Rol ADMINISTRADOR: Puede crear, actualizar y desactivar cursos (sincronizados con el vector store Qdrant vía n8n), gestionar categorías y administrar cuentas de estudiantes.\n\n" +
-                                "Uso en Swagger: Presiona el botón 'Authorize' e introduce el token obtenido en el login con el prefijo Bearer."))
+                                "Uso en Swagger: Presiona el botón 'Authorize' e introduce únicamente el token JWT obtenido en el login; Swagger agregará automáticamente el prefijo Bearer."))
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .components(new Components()
                         .addSecuritySchemes(SECURITY_SCHEME_NAME,
