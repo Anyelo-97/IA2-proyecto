@@ -4,6 +4,7 @@ import com.example.demo.curso.dto.request.UsuarioRequest;
 import com.example.demo.curso.dto.response.UsuarioResponse;
 import com.example.demo.curso.mapper.UsuarioMapper;
 import com.example.demo.curso.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Hidden
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor

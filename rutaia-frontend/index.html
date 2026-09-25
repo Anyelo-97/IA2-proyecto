@@ -14,9 +14,10 @@
 <div id="loginScreen">
   <div class="login-wrap">
     <div class="login-brand">
-      <span class="brand-mark"></span>
+      <span class="brand-mark">✦</span>
       <span class="brand-name">RutaIA</span>
     </div>
+
     <div class="role-toggle">
       <button type="button" class="active" data-role="estudiante">Estudiante</button>
       <button type="button" data-role="admin">Administrador</button>
@@ -24,63 +25,62 @@
 
     <div class="card login-card">
       <form id="loginFormEstudiante" class="login-form active">
-        <h2>Ingresa a tu cuenta</h2>
-        <p class="sub">Usa el correo y la contraseña que te asignó tu institución.</p>
+        <h2>Iniciar sesión</h2>
+        <p class="sub">Accede con tu correo institucional.</p>
         <div class="field" id="lf-est-email">
-          <label>Correo electrónico o ID de estudiante</label>
-          <input type="text" id="loginEstEmail" placeholder="tucorreo@correo.com o tu ID" autocomplete="username" required>
-          <div class="error-text">Correo/ID o contraseña incorrectos.</div>
+          <label for="loginEstEmail">Correo electrónico</label>
+          <input type="text" id="loginEstEmail" placeholder="usuario@universidad.edu" autocomplete="username" required>
+          <div class="error-text">Credenciales incorrectas.</div>
         </div>
         <div class="field" id="lf-est-pass">
-          <label>Contraseña</label>
+          <label for="loginEstPass">Contraseña</label>
           <input type="password" id="loginEstPass" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%">Ingresar</button>
-        <p class="hint" style="margin-top:14px">¿No tienes cuenta? <a href="#" data-auth="register">Regístrate</a></p>
+        <p class="hint" style="margin-top:16px;text-align:center">¿No tienes cuenta? <a href="#" data-auth="register">Regístrate aquí</a></p>
       </form>
 
       <form id="loginFormAdmin" class="login-form">
-        <h2>Acceso administrativo</h2>
-        <p class="sub">Solo personal autorizado de la institución.</p>
+        <h2>Panel institucional</h2>
+        <p class="sub">Acceso administrativo.</p>
         <div class="field" id="lf-adm-email">
-          <label>Correo electrónico</label>
+          <label for="loginAdmEmail">Correo institucional</label>
           <input type="email" id="loginAdmEmail" placeholder="admin@rutaia.edu" autocomplete="username" required>
-          <div class="error-text">Correo o contraseña incorrectos.</div>
+          <div class="error-text">Credenciales incorrectas.</div>
         </div>
         <div class="field" id="lf-adm-pass">
-          <label>Contraseña</label>
+          <label for="loginAdmPass">Contraseña</label>
           <input type="password" id="loginAdmPass" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%">Ingresar</button>
-        <p class="hint" style="margin-top:14px">¿No tienes cuenta de administrador? <a href="#" data-auth="register">Regístrate</a></p>
       </form>
 
       <form id="registerFormEstudiante" class="login-form" novalidate>
-        <h2>Crea tu cuenta</h2>
-        <p class="sub">Regístrate como estudiante para recibir recomendaciones de cursos.</p>
+        <h2>Crear cuenta</h2>
+        <p class="sub">Regístrate para recibir recomendaciones.</p>
         <div class="field" id="sr-f-nombre">
-          <label>Nombre completo</label>
-          <input type="text" id="srNombre" placeholder="Ej: Laura Gómez" autocomplete="name" required>
-          <div class="error-text">Escribe el nombre completo.</div>
+          <label for="srNombre">Nombre completo</label>
+          <input type="text" id="srNombre" placeholder="Laura Gómez" autocomplete="name" required>
+          <div class="error-text">Ingresa tu nombre completo.</div>
         </div>
         <div class="field" id="sr-f-email">
-          <label>Correo electrónico</label>
-          <input type="email" id="srEmail" placeholder="laura@correo.com" autocomplete="email" required>
+          <label for="srEmail">Correo electrónico</label>
+          <input type="email" id="srEmail" placeholder="laura@universidad.edu" autocomplete="email" required>
           <div class="error-text">Correo no válido o ya registrado.</div>
         </div>
         <div class="field" id="sr-f-pass">
-          <label>Contraseña</label>
+          <label for="srPass">Contraseña</label>
           <input type="password" id="srPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required>
-          <div class="error-text">La contraseña debe tener al menos 6 caracteres.</div>
+          <div class="error-text">Mínimo 8 caracteres.</div>
         </div>
         <div class="field" id="sr-f-pass2">
-          <label>Confirmar contraseña</label>
+          <label for="srPass2">Confirmar contraseña</label>
           <input type="password" id="srPass2" placeholder="Repite la contraseña" autocomplete="new-password" minlength="8" required>
           <div class="error-text">Las contraseñas no coinciden.</div>
         </div>
         <div class="grid-2">
           <div class="field" id="sr-f-nivel">
-            <label>Nivel de experiencia</label>
+            <label for="srNivel">Nivel actual</label>
             <select id="srNivel">
               <option value="">Selecciona…</option>
               <option>Principiante</option><option>Intermedio</option><option>Avanzado</option>
@@ -88,245 +88,357 @@
             <div class="error-text">Selecciona un nivel.</div>
           </div>
           <div class="field" id="sr-f-interes">
-            <label>Área de interés</label>
-            <select id="srInteres"><option value="">Selecciona…</option></select>
-            <div class="error-text">Selecciona un área de interés.</div>
+            <label for="srInteres">Área de interés</label>
+            <select id="srInteres">
+              <option value="">Selecciona…</option>
+            </select>
+            <div class="error-text">Selecciona un área.</div>
           </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta</button>
-        <p class="hint" style="margin-top:14px">¿Ya tienes cuenta? <a href="#" data-auth="login">Inicia sesión</a></p>
+        <p class="hint" style="margin-top:16px;text-align:center">¿Ya tienes cuenta? <a href="#" data-auth="login">Inicia sesión</a></p>
       </form>
-
-      <form id="registerFormAdmin" class="login-form" novalidate>
-        <h2>Registro administrativo</h2>
-        <p class="sub">Requiere el código de autorización entregado por la institución.</p>
-        <div class="field" id="ar-f-nombre">
-          <label>Nombre completo</label>
-          <input type="text" id="arNombre" placeholder="Ej: Ana Ruiz" autocomplete="name" required>
-          <div class="error-text">Escribe el nombre completo.</div>
-        </div>
-        <div class="field" id="ar-f-email">
-          <label>Correo electrónico</label>
-          <input type="email" id="arEmail" placeholder="admin@rutaia.edu" autocomplete="email" required>
-          <div class="error-text">Correo no válido o ya registrado.</div>
-        </div>
-        <div class="field" id="ar-f-pass">
-          <label>Contraseña</label>
-          <input type="password" id="arPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required>
-          <div class="error-text">La contraseña debe tener al menos 6 caracteres.</div>
-        </div>
-        <div class="field" id="ar-f-pass2">
-          <label>Confirmar contraseña</label>
-          <input type="password" id="arPass2" placeholder="Repite la contraseña" autocomplete="new-password" minlength="8" required>
-          <div class="error-text">Las contraseñas no coinciden.</div>
-        </div>
-        <div class="field" id="ar-f-codigo">
-          <label>Código de autorización</label>
-          <input type="password" id="arCodigo" placeholder="Código de la institución" autocomplete="off" required>
-          <div class="error-text">Código de autorización inválido.</div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width:100%">Crear cuenta de administrador</button>
-        <p class="hint" style="margin-top:14px">¿Ya tienes cuenta? <a href="#" data-auth="login">Inicia sesión</a></p>
-      </form>    </div>
+    </div>
   </div>
 </div>
 
 <div id="appRoot">
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <span class="brand-mark"></span>
-      <span class="brand-name">RutaIA</span>
-      <span class="brand-tag">orientación académica</span>
-    </div>
-    <nav class="route-nav" id="routeNav"></nav>
-    <div class="user-chip">
-      <span class="who" id="whoLabel"></span>
-      <span class="role-badge" id="roleBadge"></span>
-      <button class="logout-btn" id="logoutBtn">Salir</button>
-    </div>
-  </div>
-</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" id="brandHomeBtn">
+        <span class="brand-mark">✦</span>
+        <span class="brand-name">RutaIA</span>
+      </div>
 
-<div class="app">
+      <nav class="route-nav" id="routeNav" aria-label="Navegación principal"></nav>
 
-  <section class="hero" id="hero">
-    <div class="hero-eyebrow">Sistema de orientación académica</div>
-    <h1>Encuentra tu siguiente curso escribiendo, no buscando.</h1>
-    <p>Describe lo que quieres aprender en tus propias palabras. RutaIA busca semánticamente en el catálogo y te recomienda cursos reales, con las fuentes que sustentan cada respuesta.</p>
-    <div class="hero-row">
-      <div class="hero-stat"><b id="heroCourses">—</b><span>cursos activos</span></div>
-      <div class="hero-stat"><b id="heroAnswered">—</b><span>consultas respondidas</span></div>
-      <div class="hero-stat"><b id="heroAvgRating">—</b><span>calificación promedio</span></div>
+      <div class="user-chip">
+        <button type="button" class="user-profile-btn" id="userProfileBtn" title="Ver perfil">
+          <span class="user-avatar" id="userAvatar">U</span>
+          <span class="user-info-text">
+            <span class="user-info-name" id="whoLabel">—</span>
+          </span>
+          <span class="role-badge" id="roleBadge"></span>
+        </button>
+        <button class="logout-btn" id="logoutBtn">Salir</button>
+      </div>
     </div>
-  </section>
+  </header>
 
-  <section class="panel" id="panel-catalogo">
-    <div class="section-head">
-      <h2>Catálogo de cursos</h2>
-      <p>Solo se muestran cursos activos. Filtra por categoría o nivel para explorar la oferta.</p>
-    </div>
-    <div class="filters">
-      <select id="filterCategoria"><option value="">Todas las categorías</option></select>
-      <select id="filterNivel"><option value="">Todos los niveles</option></select>
-    </div>
-    <div id="courseGrid" class="course-grid"></div>
-  </section>
-
-  <section class="panel" id="panel-estudiantes">
-    <div class="section-head">
-      <h2>Estudiantes</h2>
-      <p>Crea la cuenta de un estudiante con su contraseña de acceso. Solo el administrador puede registrar estudiantes.</p>
-    </div>
-    <div class="grid-2" style="align-items:start">
-      <div class="card">
-        <h3 style="font-size:1rem;margin-bottom:16px">Nueva cuenta de estudiante</h3>
-        <form id="registroForm">
-          <div class="field" id="f-nombre">
-            <label for="regNombre">Nombre completo</label>
-            <input type="text" id="regNombre" placeholder="Ej: Laura Gómez">
-            <div class="error-text">Escribe el nombre completo.</div>
-          </div>
-          <div class="field" id="f-email">
-            <label for="regEmail">Correo electrónico</label>
-            <input type="email" id="regEmail" placeholder="laura@correo.com">
-            <div class="error-text">Ese correo ya está registrado o no es válido.</div>
-          </div>
-          <div class="field" id="f-pass">
-            <label for="regPass">Contraseña de acceso</label>
-            <input type="password" id="regPass" placeholder="Mínimo 6 caracteres">
-            <div class="error-text">La contraseña debe tener al menos 6 caracteres.</div>
-          </div>
-          <div class="grid-2">
-            <div class="field" id="f-nivel">
-              <label for="regNivel">Nivel de experiencia</label>
-              <select id="regNivel">
-                <option value="">Selecciona…</option>
-                <option>Principiante</option><option>Intermedio</option><option>Avanzado</option>
-              </select>
-              <div class="error-text">Selecciona un nivel.</div>
+  <main class="app">
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-glow-bg"></div>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          Orientación con IA y Búsqueda Semántica
+        </div>
+        <h1>Encuentra tu siguiente curso <span class="gradient-text">escribiendo lo que buscas.</span></h1>
+        <p>Describe tus intereses o metas profesionales en lenguaje natural. Nuestro motor vectorial encuentra los cursos afines del catálogo y te recomienda la ruta adecuada.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="heroCtaBtn">✦ Consultar con IA</button>
+          <button class="btn btn-ghost" id="heroCatalogBtn">Ver catálogo ↓</button>
+        </div>
+        <div class="hero-row">
+          <div class="hero-stat">
+            <div class="hero-stat-top">
+              <span class="hero-stat-icon">📚</span>
+              <b id="heroCourses">—</b>
             </div>
-            <div class="field" id="f-interes">
-              <label for="regInteres">Área de interés</label>
-              <select id="regInteres">
-                <option value="">Selecciona…</option>
-              </select>
-              <div class="error-text">Selecciona un área de interés.</div>
-            </div>
+            <span>cursos activos</span>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">Crear cuenta de estudiante</button>
-        </form>
-        <div id="newStudentInfo" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <p class="hint" style="margin-bottom:8px">Cuenta creada. Comparte este ID con el estudiante — lo identifica en toda la plataforma.</p>
-          <div class="pill" id="newStudentId" style="font-size:.95rem;padding:8px 14px;display:inline-flex;gap:6px;align-items:center">ID: <strong id="newStudentIdValue"></strong></div>
+          <div class="hero-stat">
+            <div class="hero-stat-top">
+              <span class="hero-stat-icon">⚡</span>
+              <b id="heroAnswered">—</b>
+            </div>
+            <span>consultas atendidas</span>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-top">
+              <span class="hero-stat-icon">⭐</span>
+              <b id="heroAvgRating">—</b>
+            </div>
+            <span>calificación promedio</span>
+          </div>
         </div>
       </div>
-      <div class="card" style="padding:0">
-        <div class="table-wrap">
-          <table class="admin-table">
-            <thead><tr><th>ID</th><th>Estudiante</th><th>Nivel</th><th>Interés</th><th></th></tr></thead>
-            <tbody id="studentsTbody"></tbody>
-          </table>
+    </section>
+
+    <!-- Panel 1: Catálogo -->
+    <section class="panel" id="panel-catalogo">
+      <div class="section-head">
+        <h2>Catálogo de cursos</h2>
+        <p>Oferta formativa activa. Filtra por tema, nivel o búsqueda en tiempo real.</p>
+      </div>
+
+      <div class="filter-toolbar">
+        <div class="search-box">
+          <span class="search-box-icon">🔍</span>
+          <input type="text" id="filterSearch" placeholder="Buscar por tema, tecnología o palabra clave (ej. React, Spring, Python)...">
+        </div>
+        <div class="filters-row">
+          <select id="filterCategoria"><option value="">Todas las categorías</option></select>
+          <select id="filterNivel"><option value="">Todos los niveles</option></select>
+          <button class="btn btn-ghost btn-sm" id="clearFiltersBtn" style="display:none">Limpiar</button>
+          <span class="filter-stats-text" id="catalogCount"></span>
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="panel" id="panel-consulta">
-    <div class="section-head">
-      <h2>Consulta inteligente</h2>
-      <p>Escribe qué quieres aprender o qué objetivo profesional tienes. Buscamos por significado, no por palabra exacta.</p>
-    </div>
-    <div class="card query-form">
-      <p class="as-who">Consultando como <b id="consultaWho">—</b></p>
-      <div class="field">
-        <label for="consultaTexto">Tu pregunta</label>
-        <textarea id="consultaTexto" placeholder="Ej: Quiero aprender a crear páginas web"></textarea>
-        <div class="error-text" id="consultaError">La pregunta no puede estar vacía.</div>
+      <div id="courseGrid" class="course-grid"></div>
+    </section>
+
+    <!-- Panel 2: Consulta Inteligente -->
+    <section class="panel" id="panel-consulta">
+      <div class="section-head">
+        <h2>Consulta con IA</h2>
+        <p>Escribe tu meta de aprendizaje. El motor buscará por afinidad semántica en el catálogo.</p>
       </div>
-      <div class="examples" id="examples"></div>
-      <button id="consultaSubmit" class="btn btn-primary" style="margin-top:18px">Buscar recomendación</button>
-    </div>
 
-    <div id="consultaLoading" class="loading-row" style="display:none">
-      <span class="spinner"></span> Consultando el catálogo…
-    </div>
+      <div class="card query-form">
+        <div class="query-user-banner">
+          <span>Consultando como <strong id="consultaWho">—</strong></span>
+          <span class="char-counter" id="charCounter">0 / 600</span>
+        </div>
 
-    <div id="resultCard" class="card result-card" style="display:none"></div>
-  </section>
+        <div class="field">
+          <label for="consultaTexto">¿Qué te gustaría aprender o cuál es tu objetivo?</label>
+          <div class="query-textarea-wrap">
+            <textarea id="consultaTexto" maxlength="600" placeholder="Ej: Quiero aprender desarrollo backend con Spring Boot y bases de datos relacionales..."></textarea>
+          </div>
+          <div class="error-text" id="consultaError">Escribe tu consulta para continuar.</div>
+        </div>
 
-  <section class="panel" id="panel-historial">
-    <div class="section-head">
-      <h2>Mi historial</h2>
-      <p>Tus consultas anteriores, con su estado y resultado.</p>
-    </div>
-    <div id="historyList" class="history-list"></div>
-  </section>
+        <div class="examples-section">
+          <div class="examples-title">💡 Ejemplos de consulta:</div>
+          <div class="examples" id="examples"></div>
+        </div>
 
-  <section class="panel" id="panel-admin">
-    <div class="section-head">
-      <h2>Administrar cursos</h2>
-      <p>Registra, actualiza o desactiva cursos del catálogo.</p>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap">
-      <span style="color:var(--text-muted);font-size:.85rem" id="adminCount"></span>
-      <button class="btn btn-primary btn-sm" id="newCourseBtn">+ Nuevo curso</button>
-    </div>
-    <div class="table-wrap card" style="padding:0">
-      <table class="admin-table">
-        <thead><tr>
-          <th>Curso</th><th>Categoría</th><th>Nivel</th><th>Duración</th><th>Estado</th><th></th>
-        </tr></thead>
-        <tbody id="adminTbody"></tbody>
-      </table>
-    </div>
-  </section>
+        <button id="consultaSubmit" class="btn btn-primary" style="margin-top:20px">
+          ✦ Buscar recomendación
+        </button>
+      </div>
 
-  <section class="panel" id="panel-stats">
-    <div class="section-head">
-      <h2>Estadísticas</h2>
-      <p>Panorama general del uso de RutaIA.</p>
-    </div>
-    <div class="stat-grid" id="statGrid"></div>
-    <div class="card">
-      <h3 style="font-size:1rem;margin-bottom:12px">Curso más recomendado</h3>
-      <p id="topCourse" style="color:var(--text-muted)">—</p>
-    </div>
-  </section>
+      <div id="consultaLoading" class="ai-loading-container" style="display:none">
+        <div class="vector-pulse">✦</div>
+        <div class="ai-loading-title">Buscando cursos afines…</div>
+        <p class="ai-loading-desc">Calculando afinidad vectorial con el catálogo.</p>
+      </div>
 
-  <footer>RutaIA · HTML, CSS y JavaScript conectado a la API de Spring Boot vía Fetch. Los datos viven en MySQL. El frontend nunca llama directamente a n8n, Qdrant u OpenRouter.</footer>
+      <div id="resultCard" class="card result-card" style="display:none"></div>
+    </section>
+
+    <!-- Panel 3: Historial -->
+    <section class="panel" id="panel-historial">
+      <div class="section-head">
+        <h2>Mi historial</h2>
+        <p>Consultas realizadas y recomendaciones recibidas.</p>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+
+    <!-- Panel 4: Estudiantes (Admin) -->
+    <section class="panel" id="panel-estudiantes">
+      <div class="section-head">
+        <h2>Estudiantes</h2>
+        <p>Registro y administración de estudiantes.</p>
+      </div>
+      <div class="grid-2" style="align-items:start">
+        <div class="card">
+          <h3 style="font-size:1.1rem;margin-bottom:16px;color:#fff">Nuevo estudiante</h3>
+          <form id="registroForm">
+            <div class="field" id="f-nombre">
+              <label for="regNombre">Nombre completo</label>
+              <input type="text" id="regNombre" placeholder="Laura Gómez">
+              <div class="error-text">Nombre requerido.</div>
+            </div>
+            <div class="field" id="f-email">
+              <label for="regEmail">Correo institucional</label>
+              <input type="email" id="regEmail" placeholder="laura@universidad.edu">
+              <div class="error-text">Correo no válido o registrado.</div>
+            </div>
+            <div class="field" id="f-pass">
+              <label for="regPass">Contraseña inicial</label>
+              <input type="password" id="regPass" placeholder="Mínimo 6 caracteres">
+              <div class="error-text">Mínimo 6 caracteres.</div>
+            </div>
+            <div class="grid-2">
+              <div class="field" id="f-nivel">
+                <label for="regNivel">Nivel</label>
+                <select id="regNivel">
+                  <option value="">Selecciona…</option>
+                  <option>Principiante</option><option>Intermedio</option><option>Avanzado</option>
+                </select>
+                <div class="error-text">Selecciona un nivel.</div>
+              </div>
+              <div class="field" id="f-interes">
+                <label for="regInteres">Interés</label>
+                <select id="regInteres">
+                  <option value="">Selecciona…</option>
+                </select>
+                <div class="error-text">Selecciona un área.</div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Crear estudiante</button>
+          </form>
+          <div id="newStudentInfo" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <p class="hint" style="margin-bottom:6px">Estudiante registrado con éxito:</p>
+            <div class="masked-uuid-chip" id="newStudentIdChip" title="Copiar ID">
+              <span id="newStudentIdValue"></span>
+              <span>📋</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0">
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>ID</th><th>Estudiante</th><th>Nivel</th><th>Interés</th><th></th></tr></thead>
+              <tbody id="studentsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel 5: Cursos (Admin) -->
+    <section class="panel" id="panel-admin">
+      <div class="section-head">
+        <h2>Gestión de cursos</h2>
+        <p>Administración del catálogo académico.</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+        <span style="color:var(--text-muted);font-size:.9rem" id="adminCount"></span>
+        <button class="btn btn-primary btn-sm" id="newCourseBtn">+ Nuevo curso</button>
+      </div>
+      <div class="table-wrap card" style="padding:0">
+        <table class="admin-table">
+          <thead><tr>
+            <th>Curso</th><th>Categoría</th><th>Nivel</th><th>Duración</th><th>Estado</th><th>Acciones</th>
+          </tr></thead>
+          <tbody id="adminTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Panel 6: Métricas (Admin) -->
+    <section class="panel" id="panel-stats">
+      <div class="section-head">
+        <h2>Estadísticas</h2>
+        <p>Métricas de uso y satisfacción.</p>
+      </div>
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="card" style="margin-top:20px">
+        <h3 style="font-size:1.05rem;margin-bottom:8px;color:#fff">Curso más recomendado</h3>
+        <p id="topCourse" style="color:var(--accent-2);font-weight:600;font-size:1.05rem;margin:0">—</p>
+      </div>
+    </section>
+
+    <footer>
+      <div>© 2026 RutaIA · Orientación académica con IA</div>
+      <div>Búsqueda semántica de cursos</div>
+    </footer>
+  </main>
 </div>
-</div>
 
+<!-- Modal: Crear/Editar Curso (Admin) -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-head">
-      <h3 id="modalTitle" style="font-size:1.1rem">Nuevo curso</h3>
-      <button class="modal-close" id="modalClose">&times;</button>
+      <h3 id="modalTitle">Nuevo curso</h3>
+      <button class="modal-close" id="modalClose" aria-label="Cerrar modal">&times;</button>
     </div>
     <form id="courseForm">
       <input type="hidden" id="courseId">
-      <div class="field" id="cf-nombre"><label>Nombre</label><input type="text" id="courseNombre"><div class="error-text">El nombre es obligatorio.</div></div>
-      <div class="field" id="cf-desc"><label>Descripción</label><textarea id="courseDesc" placeholder="Sé específico: esta descripción alimenta la búsqueda semántica."></textarea><div class="error-text">La descripción es obligatoria.</div></div>
+      <div class="field" id="cf-nombre">
+        <label for="courseNombre">Nombre</label>
+        <input type="text" id="courseNombre" placeholder="Ej: Desarrollo Backend con Spring Boot">
+        <div class="error-text">El nombre es obligatorio.</div>
+      </div>
+      <div class="field" id="cf-desc">
+        <label for="courseDesc">Descripción</label>
+        <textarea id="courseDesc" placeholder="Prerrequisitos, temario y herramientas del curso."></textarea>
+        <div class="error-text">La descripción es obligatoria.</div>
+      </div>
       <div class="grid-2">
-        <div class="field" id="cf-cat"><label>Categoría</label><select id="courseCat"></select><div class="error-text">Requerida.</div></div>
-        <div class="field" id="cf-nivel"><label>Nivel</label>
+        <div class="field" id="cf-cat">
+          <label for="courseCat">Categoría</label>
+          <select id="courseCat"></select>
+          <div class="error-text">Selecciona una categoría.</div>
+        </div>
+        <div class="field" id="cf-nivel">
+          <label for="courseNivel">Nivel</label>
           <select id="courseNivel"></select>
         </div>
       </div>
       <div class="grid-2">
-        <div class="field" id="cf-dur"><label>Duración (horas)</label><input type="number" id="courseDur" min="1"><div class="error-text">Debe ser mayor que cero.</div></div>
-        <div class="field"><label>Estado</label>
-          <select id="courseActivo"><option value="true">Activo</option><option value="false">Inactivo</option></select>
+        <div class="field" id="cf-dur">
+          <label for="courseDur">Duración (horas)</label>
+          <input type="number" id="courseDur" min="1" placeholder="40">
+          <div class="error-text">Mayor a cero.</div>
+        </div>
+        <div class="field">
+          <label for="courseActivo">Estado</label>
+          <select id="courseActivo">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">Guardar curso</button>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px">Guardar curso</button>
     </form>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- Modal: Detalle de Curso -->
+<div class="modal-overlay" id="courseDetailModalOverlay">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-head">
+      <h3 id="cdmTitle">Detalle del curso</h3>
+      <button class="modal-close" id="cdmClose" aria-label="Cerrar">&times;</button>
+    </div>
+    <div id="cdmContent"></div>
+    <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" id="cdmCloseBtn">Cerrar</button>
+      <button class="btn btn-primary btn-sm" id="cdmAskAiBtn">✦ Consultar sobre este curso</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Perfil de Usuario -->
+<div class="modal-overlay" id="userProfileModalOverlay">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <h3>Perfil de usuario</h3>
+      <button class="modal-close" id="profileModalClose" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="profile-modal-card">
+      <div class="profile-avatar-big" id="profileAvatarBig">U</div>
+      <div class="profile-field-row">
+        <span class="profile-field-label">Nombre</span>
+        <span class="profile-field-val" id="profileNameVal">—</span>
+      </div>
+      <div class="profile-field-row">
+        <span class="profile-field-label">Correo</span>
+        <span class="profile-field-val" id="profileEmailVal">—</span>
+      </div>
+      <div class="profile-field-row">
+        <span class="profile-field-label">Rol</span>
+        <span class="profile-field-val" id="profileRoleVal">—</span>
+      </div>
+      <div class="profile-field-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <span class="profile-field-label">ID de usuario</span>
+        <div style="display:flex;align-items:center;gap:8px;width:100%">
+          <span class="masked-uuid-chip" id="profileMaskedId" style="flex:1" title="Copiar ID">••••••••</span>
+          <button class="btn btn-ghost btn-sm" id="profileCopyIdBtn">Copiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="assertive"></div>
 
 <script>window.RUTAIA_API_BASE = "http://localhost:8080/api";</script>
 <script src="script.js"></script>

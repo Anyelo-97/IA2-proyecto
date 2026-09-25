@@ -11,22 +11,21 @@ import com.example.demo.curso.model.Usuario;
 import com.example.demo.curso.repository.AdministradorRepository;
 import com.example.demo.curso.repository.EstudianteRepository;
 import com.example.demo.curso.repository.UsuarioRepository;
+import com.example.demo.curso.service.AuthService;
 import com.example.demo.exception.BusinessRuleException;
+import com.example.demo.util.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImpl implements com.example.demo.curso.service.AuthService {
+public class AuthServiceImpl implements AuthService {
     private final UsuarioRepository usuarioRepository;
     private final EstudianteRepository estudianteRepository;
     private final AdministradorRepository administradorRepository;
@@ -58,8 +57,8 @@ public class AuthServiceImpl implements com.example.demo.curso.service.AuthServi
     public AuthResponse registrarEstudiante(RegistroEstudianteRequest request) {
         ensureEmailAvailable(request.getEmail());
         String id = UUID.randomUUID().toString();
-        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), hash(request.getPassword()), "ESTUDIANTE");
-        usuarioRepository.save(usuario);
+        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), PasswordUtils.sha256(request.getPassword()), "ESTUDIANTE");
+        usuario = usuarioRepository.save(usuario);
         estudianteRepository.save(new Estudiante(id, request.getNombre().trim(), request.getNivelExperiencia(), request.getAreaInteres().trim(), usuario));
         return createSession(usuario);
     }
@@ -72,8 +71,8 @@ public class AuthServiceImpl implements com.example.demo.curso.service.AuthServi
         }
         ensureEmailAvailable(request.getEmail());
         String id = UUID.randomUUID().toString();
-        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), hash(request.getPassword()), "ADMINISTRADOR");
-        usuarioRepository.save(usuario);
+        Usuario usuario = new Usuario(id, request.getEmail().trim().toLowerCase(), PasswordUtils.sha256(request.getPassword()), "ADMINISTRADOR");
+        usuario = usuarioRepository.save(usuario);
         administradorRepository.save(new Administrador(id, request.getNombre().trim(), usuario));
         return createSession(usuario);
     }
@@ -113,18 +112,7 @@ public class AuthServiceImpl implements com.example.demo.curso.service.AuthServi
             return false;
         }
         String normalizedStored = stored.trim();
-        String hashedRaw = hash(raw);
+        String hashedRaw = PasswordUtils.sha256(raw);
         return normalizedStored.equalsIgnoreCase(hashedRaw) || normalizedStored.equals(raw);
-    }
-
-    private String hash(String value) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
-            StringBuilder result = new StringBuilder();
-            for (byte item : digest) result.append(String.format("%02x", item));
-            return result.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new IllegalStateException("No se pudo preparar la contraseña.", ex);
-        }
     }
 }

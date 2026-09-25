@@ -10,9 +10,14 @@ public class EstudianteMapper {
 
     public EstudianteResponse entityToDto(Estudiante estudiante) {
         if (estudiante == null) return null;
+        String email = null;
+        if (estudiante.getUsuario() != null) {
+            email = estudiante.getUsuario().getEmail();
+        }
         return new EstudianteResponse(
                 estudiante.getId(),
                 estudiante.getNombre(),
+                email,
                 estudiante.getNivelExperiencia(),
                 estudiante.getAreaInteres()
         );

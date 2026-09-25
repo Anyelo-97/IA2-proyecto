@@ -8,7 +8,6 @@ import com.example.demo.curso.dto.response.HistorialResponse;
 import com.example.demo.curso.mapper.ConsultaMapper;
 import com.example.demo.curso.mapper.FuenteMapper;
 import com.example.demo.curso.model.Consulta;
-import com.example.demo.curso.model.Curso;
 import com.example.demo.curso.model.Estudiante;
 import com.example.demo.curso.model.Fuente;
 import com.example.demo.curso.model.Recomendacion;
@@ -24,7 +23,6 @@ import com.example.demo.n8n.N8nQueryResponse;
 import com.example.demo.n8n.N8nQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +30,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ConsultaServiceImpl implements ConsultaService {
+
+    private static final int MAX_CONTENIDO_LENGTH = 1995;
 
     private final ConsultaRepository consultaRepository;
     private final ConsultaMapper consultaMapper;
@@ -48,35 +46,18 @@ public class ConsultaServiceImpl implements ConsultaService {
     private final FuenteRepository fuenteRepository;
     private final CursoRepository cursoRepository;
     private final EstudianteRepository estudianteRepository;
-    private FuenteMapper fuenteMapper = new FuenteMapper();
-
-    @Autowired
-    public void setFuenteMapper(FuenteMapper fuenteMapper) {
-        if (fuenteMapper != null) {
-            this.fuenteMapper = fuenteMapper;
-        }
-    }
+    private final FuenteMapper fuenteMapper;
 
     @Override
     @Transactional
     public ConsultaConResultadoResponse crearConsulta(ConsultaRequest request) {
         log.info("Creando consulta para estudiante: {}", request.getEstudianteId());
-
-        if (request.getPregunta() == null || request.getPregunta().trim().isEmpty()) {
-            throw new BusinessRuleException("La pregunta no puede estar vacía.");
-        }
+        validarPregunta(request.getPregunta());
 
         Estudiante estudiante = estudianteRepository.findById(request.getEstudianteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Estudiante no encontrado con ID: " + request.getEstudianteId()));
 
-        Consulta consulta = new Consulta();
-        consulta.setId(UUID.randomUUID().toString());
-        consulta.setEstudianteId(estudiante.getId());
-        consulta.setPregunta(request.getPregunta().trim());
-        consulta.setFecha(LocalDateTime.now());
-        consulta.setEstado("Pendiente");
-
-        consulta = consultaRepository.save(consulta);
+        Consulta consulta = registrarConsultaInicial(estudiante.getId(), request.getPregunta().trim());
         log.info("Consulta creada exitosamente con ID: {}", consulta.getId());
 
         try {
@@ -87,84 +68,14 @@ public class ConsultaServiceImpl implements ConsultaService {
                     estudiante.getAreaInteres()
             );
 
-            if (response == null
-                    || "Sin resultados".equalsIgnoreCase(response.getEstado())
-                    || response.getFuentes() == null
-                    || response.getFuentes().isEmpty()) {
-
-                Recomendacion recomendacion = new Recomendacion();
-                recomendacion.setId(UUID.randomUUID().toString());
-                recomendacion.setConsultaId(consulta.getId());
-                recomendacion.setContenido(response != null && response.getRespuesta() != null ? response.getRespuesta() : "");
-                recomendacion.setFecha(LocalDateTime.now());
-                recomendacion.setEstado("Sin resultados");
-                recomendacionRepository.save(recomendacion);
-
-                consulta.setEstado("Sin resultados");
-                consultaRepository.save(consulta);
-
-                ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
-                res.setConsultaId(consulta.getId());
-                res.setRecomendacionId(recomendacion.getId());
-                res.setPregunta(consulta.getPregunta());
-                res.setEstado("Sin resultados");
-                res.setRespuesta(recomendacion.getContenido());
-                res.setFuentes(Collections.emptyList());
-                return res;
+            if (esRespuestaSinResultados(response)) {
+                return procesarSinResultados(consulta, response);
             }
 
-            String contenido = response.getRespuesta() != null ? response.getRespuesta() : "";
-            if (contenido.length() > 2000) {
-                contenido = contenido.substring(0, 1997) + "...";
-            }
-
-            Recomendacion recomendacion = new Recomendacion();
-            recomendacion.setId(UUID.randomUUID().toString());
-            recomendacion.setConsultaId(consulta.getId());
-            recomendacion.setContenido(contenido);
-            recomendacion.setFecha(LocalDateTime.now());
-            recomendacion.setEstado("Respondida");
-            Recomendacion recomendacionGuardada = recomendacionRepository.save(recomendacion);
-
-            List<FuenteResponse> fuentesResponse = new ArrayList<>();
-            for (N8nQueryResponse.FuenteN8n fuenteN8n : response.getFuentes()) {
-                Optional<Curso> cursoOpt = cursoRepository.findById(fuenteN8n.getCursoId());
-                if (cursoOpt.isPresent()) {
-                    Curso curso = cursoOpt.get();
-                    Fuente fuente = new Fuente();
-                    fuente.setId(UUID.randomUUID().toString());
-                    fuente.setRecomendacion(recomendacionGuardada);
-                    fuente.setCurso(curso);
-                    fuente.setSimilitud(fuenteN8n.getSimilitud());
-                    Fuente fuenteGuardada = fuenteRepository.save(fuente);
-                    fuentesResponse.add(fuenteMapper.entityToDto(fuenteGuardada));
-                }
-            }
-
-            consulta.setEstado("Respondida");
-            consultaRepository.save(consulta);
-
-            ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
-            res.setConsultaId(consulta.getId());
-            res.setRecomendacionId(recomendacionGuardada.getId());
-            res.setPregunta(consulta.getPregunta());
-            res.setEstado("Respondida");
-            res.setRespuesta(recomendacionGuardada.getContenido());
-            res.setFuentes(fuentesResponse);
-            return res;
+            return procesarRecomendacionExitosa(consulta, response);
 
         } catch (Exception e) {
-            log.error("Error al procesar consulta con n8n para consulta ID: {}", consulta.getId(), e);
-            consulta.setEstado("Error");
-            consultaRepository.save(consulta);
-
-            ConsultaConResultadoResponse errorRes = new ConsultaConResultadoResponse();
-            errorRes.setConsultaId(consulta.getId());
-            errorRes.setPregunta(consulta.getPregunta());
-            errorRes.setEstado("Error");
-            errorRes.setRespuesta("Error al procesar la recomendación con el servicio de IA.");
-            errorRes.setFuentes(Collections.emptyList());
-            return errorRes;
+            return procesarErrorEnConsulta(consulta, e);
         }
     }
 
@@ -184,15 +95,152 @@ public class ConsultaServiceImpl implements ConsultaService {
         List<Consulta> consultas = consultaRepository.findByEstudianteIdOrderByFechaDesc(estudianteId);
 
         return consultas.stream()
-                .map(consulta -> {
-                    Recomendacion recomendacion = recomendacionRepository.findByConsultaId(consulta.getId())
-                            .orElse(null);
-                    List<Fuente> fuentes = Collections.emptyList();
-                    if (recomendacion != null) {
-                        fuentes = fuenteRepository.findByRecomendacionId(recomendacion.getId());
-                    }
-                    return consultaMapper.toHistorial(consulta, recomendacion, fuentes);
-                })
-                .collect(Collectors.toList());
+                .map(this::mapearHistorialIndividual)
+                .toList();
+    }
+
+    private void validarPregunta(String pregunta) {
+        if (pregunta == null || pregunta.trim().isEmpty()) {
+            throw new BusinessRuleException("La pregunta no puede estar vacía.");
+        }
+    }
+
+    private Consulta registrarConsultaInicial(String estudianteId, String pregunta) {
+        Consulta consulta = new Consulta();
+        consulta.setId(UUID.randomUUID().toString());
+        consulta.setEstudianteId(estudianteId);
+        consulta.setPregunta(pregunta);
+        consulta.setFecha(LocalDateTime.now());
+        consulta.setEstado("Pendiente");
+        return consultaRepository.save(consulta);
+    }
+
+    private boolean esRespuestaSinResultados(N8nQueryResponse response) {
+        return response == null
+                || "Sin resultados".equalsIgnoreCase(response.getEstado())
+                || response.getFuentes() == null
+                || response.getFuentes().isEmpty();
+    }
+
+    private ConsultaConResultadoResponse procesarSinResultados(Consulta consulta, N8nQueryResponse response) {
+        String contenido = recortarTextoDefensivo(response != null ? response.getRespuesta() : "");
+
+        Recomendacion recomendacion = new Recomendacion();
+        recomendacion.setId(UUID.randomUUID().toString());
+        recomendacion.setConsultaId(consulta.getId());
+        recomendacion.setContenido(contenido);
+        recomendacion.setFecha(LocalDateTime.now());
+        recomendacion.setEstado("Sin resultados");
+        recomendacionRepository.save(recomendacion);
+
+        consulta.setEstado("Sin resultados");
+        consultaRepository.save(consulta);
+
+        return construirRespuestaConsulta(
+                consulta.getId(),
+                recomendacion.getId(),
+                consulta.getPregunta(),
+                "Sin resultados",
+                recomendacion.getContenido(),
+                Collections.emptyList()
+        );
+    }
+
+    private ConsultaConResultadoResponse procesarRecomendacionExitosa(Consulta consulta, N8nQueryResponse response) {
+        String contenido = recortarTextoDefensivo(response.getRespuesta());
+
+        Recomendacion recomendacion = new Recomendacion();
+        recomendacion.setId(UUID.randomUUID().toString());
+        recomendacion.setConsultaId(consulta.getId());
+        recomendacion.setContenido(contenido);
+        recomendacion.setFecha(LocalDateTime.now());
+        recomendacion.setEstado("Respondida");
+        Recomendacion recomendacionGuardada = recomendacionRepository.save(recomendacion);
+
+        List<FuenteResponse> fuentesResponse = registrarFuentes(recomendacionGuardada, response.getFuentes());
+
+        consulta.setEstado("Respondida");
+        consultaRepository.save(consulta);
+
+        return construirRespuestaConsulta(
+                consulta.getId(),
+                recomendacionGuardada.getId(),
+                consulta.getPregunta(),
+                "Respondida",
+                recomendacionGuardada.getContenido(),
+                fuentesResponse
+        );
+    }
+
+    private List<FuenteResponse> registrarFuentes(Recomendacion recomendacion, List<N8nQueryResponse.FuenteN8n> fuentesN8n) {
+        if (fuentesN8n == null || fuentesN8n.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<FuenteResponse> fuentesResponse = new ArrayList<>();
+        for (N8nQueryResponse.FuenteN8n fuenteN8n : fuentesN8n) {
+            cursoRepository.findById(fuenteN8n.getCursoId()).ifPresent(curso -> {
+                Fuente fuente = new Fuente();
+                fuente.setId(UUID.randomUUID().toString());
+                fuente.setRecomendacion(recomendacion);
+                fuente.setCurso(curso);
+                fuente.setSimilitud(fuenteN8n.getSimilitud());
+                Fuente fuenteGuardada = fuenteRepository.save(fuente);
+                fuentesResponse.add(fuenteMapper.entityToDto(fuenteGuardada));
+            });
+        }
+        return fuentesResponse;
+    }
+
+    private ConsultaConResultadoResponse procesarErrorEnConsulta(Consulta consulta, Exception e) {
+        log.error("Error al procesar consulta con n8n para consulta ID: {}", consulta.getId(), e);
+        consulta.setEstado("Error");
+        consultaRepository.save(consulta);
+
+        return construirRespuestaConsulta(
+                consulta.getId(),
+                null,
+                consulta.getPregunta(),
+                "Error",
+                "Error al procesar la recomendación con el servicio de IA.",
+                Collections.emptyList()
+        );
+    }
+
+    private HistorialResponse mapearHistorialIndividual(Consulta consulta) {
+        Recomendacion recomendacion = recomendacionRepository.findByConsultaId(consulta.getId())
+                .orElse(null);
+        List<Fuente> fuentes = (recomendacion != null)
+                ? fuenteRepository.findByRecomendacionId(recomendacion.getId())
+                : Collections.emptyList();
+        return consultaMapper.toHistorial(consulta, recomendacion, fuentes);
+    }
+
+    private String recortarTextoDefensivo(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        if (texto.length() > MAX_CONTENIDO_LENGTH) {
+            return texto.substring(0, MAX_CONTENIDO_LENGTH - 3) + "...";
+        }
+        return texto;
+    }
+
+    private ConsultaConResultadoResponse construirRespuestaConsulta(
+            String consultaId,
+            String recomendacionId,
+            String pregunta,
+            String estado,
+            String respuesta,
+            List<FuenteResponse> fuentes) {
+
+        ConsultaConResultadoResponse res = new ConsultaConResultadoResponse();
+        res.setConsultaId(consultaId);
+        res.setRecomendacionId(recomendacionId);
+        res.setPregunta(pregunta);
+        res.setEstado(estado);
+        res.setRespuesta(respuesta);
+        res.setFuentes(fuentes != null ? fuentes : Collections.emptyList());
+        return res;
     }
 }

@@ -19,6 +19,11 @@ public class FuenteMapper {
         String categoriaNombre = (fuente.getCurso() != null && fuente.getCurso().getCategoria() != null)
                 ? fuente.getCurso().getCategoria().getNombre()
                 : null;
+        String nivelNombre = (fuente.getCurso() != null && fuente.getCurso().getNivel() != null)
+                ? fuente.getCurso().getNivel().getNombre()
+                : null;
+        Integer duracion = fuente.getCurso() != null ? fuente.getCurso().getDuracion() : null;
+
         return new FuenteResponse(
                 fuente.getId(),
                 recId,
@@ -26,6 +31,8 @@ public class FuenteMapper {
                 curNombre,
                 curDescripcion,
                 categoriaNombre,
+                nivelNombre,
+                duracion,
                 fuente.getSimilitud()
         );
     }

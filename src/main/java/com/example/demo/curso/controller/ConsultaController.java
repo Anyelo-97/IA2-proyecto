@@ -6,22 +6,21 @@ import com.example.demo.curso.dto.response.ConsultaResponse;
 import com.example.demo.curso.dto.response.HistorialResponse;
 import com.example.demo.curso.service.ConsultaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Consultas")
+@Tag(name = "1. Consultas Inteligentes (RAG)", description = "Procesamiento de consultas en lenguaje natural mediante pipeline RAG sincrónico e historial académico.")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -29,26 +28,53 @@ public class ConsultaController {
 
     private final ConsultaService consultaService;
 
-    @Operation(summary = "Crear nueva consulta", description = "Registra una consulta de estudiante y devuelve el resultado con sus fuentes")
-    @ApiResponse(responseCode = "201", description = "Consulta creada exitosamente")
-    @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    @Operation(
+            summary = "Procesar consulta académica en lenguaje natural mediante RAG",
+            description = "Procesa una consulta en lenguaje natural realizada por un estudiante utilizando un flujo sincrónico RAG (Retrieval-Augmented Generation): "
+                    + "Spring Boot -> n8n -> Qdrant (búsqueda semántica por similitud coseno de 1536 dimensiones) -> OpenRouter (generación de respuesta contextualizada con LLM) "
+                    + "-> Recomendación persistida en MySQL junto con las fuentes de cursos utilizadas y sus puntuaciones de similitud."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Consulta procesada exitosamente; recomendación y fuentes persistidas",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ConsultaConResultadoResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Pregunta vacía o solicitud inválida", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Estudiante no encontrado con el identificador proporcionado", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno en el pipeline RAG o en la base de datos", content = @Content)
+    })
     @PostMapping("/consultas")
     public ResponseEntity<ConsultaConResultadoResponse> crearConsulta(@Valid @RequestBody ConsultaRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(consultaService.crearConsulta(request));
     }
 
-    @Operation(summary = "Obtener consulta por ID", description = "Obtiene los datos básicos de una consulta por su identificador")
-    @ApiResponse(responseCode = "200", description = "Consulta obtenida exitosamente")
-    @ApiResponse(responseCode = "404", description = "Consulta no encontrada")
+    @Operation(
+            summary = "Obtener detalle de consulta y recomendación por ID",
+            description = "Recupera la información básica de una consulta registrada en el sistema por su identificador único."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Consulta encontrada exitosamente",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ConsultaResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Consulta no encontrada", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
     @GetMapping("/consultas/{id}")
-    public ResponseEntity<ConsultaResponse> obtenerPorId(@PathVariable String id) {
+    public ResponseEntity<ConsultaResponse> obtenerPorId(
+            @Parameter(description = "Identificador único de la consulta", example = "con-001") @PathVariable String id) {
         return ResponseEntity.ok(consultaService.obtenerPorId(id));
     }
 
-    @Operation(summary = "Historial de consultas de un estudiante", description = "Lista el historial de consultas de un estudiante ordenado cronológicamente de forma descendente")
-    @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente")
-    @GetMapping({"/estudiantes/{estudianteId}/historial", "/consultas/estudiante/{estudianteId}/historial"})
-    public ResponseEntity<List<HistorialResponse>> listarHistorial(@PathVariable String estudianteId) {
+    @Operation(
+            summary = "Obtener historial completo de consultas y fuentes de un estudiante",
+            description = "Recupera el historial cronológico completo de consultas realizadas por un estudiante, incluyendo el estado de resolución, recomendaciones emitidas, fuentes de cursos consultadas y calificaciones otorgadas."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = HistorialResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Estudiante no encontrado", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping({"/consultas/historial/{estudianteId}", "/estudiantes/{estudianteId}/historial", "/consultas/estudiante/{estudianteId}/historial"})
+    public ResponseEntity<List<HistorialResponse>> listarHistorial(
+            @Parameter(description = "Identificador del estudiante", example = "est-001") @PathVariable String estudianteId) {
         return ResponseEntity.ok(consultaService.listarHistorial(estudianteId));
     }
 }
