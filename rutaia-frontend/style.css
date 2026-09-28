@@ -811,10 +811,10 @@ textarea{ resize: vertical; min-height: 100px; }
   border-radius: var(--radius-m);
 }
 
-.examples-section{
+.examples-section, .nivel-dificultad-section{
   margin-top: 16px;
 }
-.examples-title{
+.examples-title, .nivel-dificultad-title{
   font-size: .78rem;
   font-weight: 600;
   color: var(--text-faint);
@@ -822,12 +822,12 @@ textarea{ resize: vertical; min-height: 100px; }
   letter-spacing: .04em;
   margin-bottom: 8px;
 }
-.examples{
+.examples, .nivel-dificultad{
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-.example-chip{
+.example-chip, .nivel-chip{
   font-size: .8rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -838,7 +838,7 @@ textarea{ resize: vertical; min-height: 100px; }
   transition: all .15s ease;
   user-select: none;
 }
-.example-chip:hover{
+.example-chip:hover, .nivel-chip:hover{
   color: var(--text);
   border-color: var(--accent);
   background: rgba(245, 158, 11, 0.08);

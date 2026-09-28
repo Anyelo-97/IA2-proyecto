@@ -15,6 +15,12 @@ const EXAMPLES = [
   "Bases de datos con PostgreSQL y Qdrant"
 ];
 
+const nivel = [
+  "Básico",
+  "Intermedio",
+  "Avanzado"  
+]
+
 const DEFAULT_CATEGORIAS = [
   {id:"cat-001", nombre:"Desarrollo Web"},
   {id:"cat-002", nombre:"Bases de Datos"},
@@ -1065,6 +1071,18 @@ EXAMPLES.forEach(ex => {
   $("examples").appendChild(chip);
 });
 
+  nivel.forEach(ex => {
+    const chips = document.createElement("span");
+    chips.className = "nivel-chip";
+    chips.textContent = ex;
+    chips.addEventListener("click", ()=>{
+      $("consultaNivel").value = ex;
+      updateCharCounter();
+      $("consultaNivel").focus();
+    });
+    $("nivel").appendChild(chips);
+  });
+
 $("consultaSubmit").addEventListener("click", async ()=>{
   const field = $("consultaTexto").closest(".field");
   const texto = $("consultaTexto").value.trim();
@@ -1075,6 +1093,8 @@ $("consultaSubmit").addEventListener("click", async ()=>{
     $("consultaTexto").focus();
     return;
   }
+
+
 
   const btn = $("consultaSubmit");
   $("resultCard").style.display = "none";
