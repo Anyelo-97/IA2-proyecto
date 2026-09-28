@@ -1,3 +1,30 @@
+EL EXAMEN ES EL JSON 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # RutaIA - Plataforma Inteligente de Orientación y Recomendación Académica
 
 ## Integrantes del Proyecto
