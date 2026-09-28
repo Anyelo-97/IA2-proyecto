@@ -34,4 +34,7 @@ public class AdministradorController {
     public ResponseEntity<AdministradorResponse> crear(@Valid @RequestBody AdministradorRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.entityToDto(service.guardar(mapper.requestToEntity(request))));
     }
+
+    @GetMapping
+    public ResponseEntity<AdministradorController>
 }

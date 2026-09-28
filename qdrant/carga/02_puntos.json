@@ -10,7 +10,7 @@ PUT collections/cursos/points
       "payload": {
         "cursoId": "c0000001-0000-4000-8000-000000000001",
         "nombre": "Desarrollo Web con HTML5, CSS3 y JavaScript",
-        "descripcion": "Aprende los fundamentos para crear páginas web interactivas y responsivas desde cero utilizando estándares modernos de HTML5, estilos avanzados con CSS3 y programación del DOM con JavaScript. El curso incluye diseño adaptable con Flexbox y Grid, consumo básico de APIs REST mediante Fetch y despliegue continuo de sitios en GitHub Pages. Al finalizar el estudiante podrá diseñar interfaces web limpias y funcionales para proyectos personales o corporativos.",
+        "descripcion": "Aprende los fundamentos para crear paginas web interactivas y responsivas desde cero utilizando estándares modernos de HTML5, estilos avanzados con CSS3 y programación del DOM con JavaScript. El curso incluye diseño adaptable con Flexbox y Grid, consumo básico de APIs REST mediante Fetch y despliegue continuo de sitios en GitHub Pages. Al finalizar el estudiante podrá diseñar interfaces web limpias y funcionales para proyectos personales o corporativos.",
         "categoriaNombre": "Desarrollo Web",
         "nivelNombre": "Básico",
         "duracion": 40,

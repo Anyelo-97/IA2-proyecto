@@ -1,0 +1,479 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Examen",
+        "formDescription": "Examen 1",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "consultaId",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "pregunta1"
+            },
+            {
+              "fieldLabel": "pregunta2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -4560,
+        2448
+      ],
+      "id": "b8ff9760-a4a5-48c3-9c92-fc4906057e1a",
+      "name": "On form submission",
+      "webhookId": "370ab0a3-0b85-454e-b1fb-e31b7ab3bc6e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"pregunta1\"] }} || {{ $json[\"pregunta2\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -4384,
+        2448
+      ],
+      "id": "a267b1f4-00ad-46cc-9a22-7834340b778d",
+      "name": "Validar Pregunta1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: $json.modelo_embedding, input: $json.pregunta1 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -3840,
+        2560
+      ],
+      "id": "a5b2026d-5748-493c-b355-75252b351005",
+      "name": "Embedding Pregunta1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "vmwMJXLFIb4nd00z",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: $json.modelo_embedding, input: $json.pregunta2 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -3856,
+        2368
+      ],
+      "id": "66effd24-ae7d-460e-8912-cc976a4a627d",
+      "name": "Embedding Pregunta2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "vmwMJXLFIb4nd00z",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $('Embedding Pregunta2').first().json;\nconst r = $input.first().json;\nif (!r.data?.length) throw new Error('No se pudo generar embedding en OpenRouter');\nreturn [{\n  json: {\n    ...c,\n    vector: r.data[0].embedding\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3584,
+        2368
+      ],
+      "id": "84571116-8206-4739-b02e-db5bbd821af7",
+      "name": "Preparar Vector Qdrant1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $('Embedding Pregunta1').first().json;\nconst r = $input.first().json;\nif (!r.data?.length) throw new Error('No se pudo generar embedding en OpenRouter');\nreturn [{\n  json: {\n    ...c,\n    vector: r.data[0].embedding\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3584,
+        2544
+      ],
+      "id": "b6a1abed-3112-411e-8bb8-2e368eeaaba4",
+      "name": "Preparar Vector Qdrant2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Prepara Config & Filtros1').item.json.qdrant_url + '/collections/' + $('Prepara Config & Filtros1').item.json.coleccion + '/points/search' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  vector: $json.vector,\n  filter: $('Prepara Config & Filtros1').item.json.filter,\n  limit: $('Prepara Config & Filtros1').item.json.limite,\n  score_threshold: $('Prepara Config & Filtros1').item.json.score_threshold,\n  with_payload: true,\n  with_vector: false\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -3296,
+        2320
+      ],
+      "id": "a558dfc4-c81e-498c-91e8-1f28d40b3143",
+      "name": "Buscar en Qdrant1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Prepara Config & Filtros1').item.json.qdrant_url + '/collections/' + $('Prepara Config & Filtros1').item.json.coleccion + '/points/search' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  vector: $json.vector,\n  filter: $('Prepara Config & Filtros1').item.json.filter,\n  limit: $('Prepara Config & Filtros1').item.json.limite,\n  score_threshold: $('Prepara Config & Filtros1').item.json.score_threshold,\n  with_payload: true,\n  with_vector: false\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -3296,
+        2528
+      ],
+      "id": "3c8e8867-16ab-484c-b930-a2dfc0222db0",
+      "name": "Buscar en Qdrant2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body ?? $json;\nconst consultaId = b.consultaId ?? 'consulta-temp';\nconst pregunta1 = (b.pregunta1 ?? b.mensaje ?? '').trim();\nconst pregunta2 = (b.pregunta2 ?? b.mensaje ?? '').trim();\n\n\n\n// Filtro determinista en Qdrant: solo cursos activos\nconst filter = {\n  must: [\n    {\n      key: 'estado',\n      match: { value: true }\n    }\n  ]\n};\n\nreturn [{\n  json: {\n    consultaId,\n    pregunta1,\n    pregunta2,\n    filter,\n    qdrant_url: 'http://qdrant:6333',\n    coleccion: 'cursos',\n    modelo_embedding: 'text-embedding-3-small',\n    limite: 5,\n    score_threshold: 0.45\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4160,
+        2448
+      ],
+      "id": "f8000554-42f9-4eba-828e-5c9ee4601e42",
+      "name": "Prepara Config & Filtros1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const punto_1 = $input.first().json.categoria1;\n\nconst punto_2 = $input.first().json.categoria2 ;\n\nif (punto_1 === punto_2) {\n  return [{\n  json: {\n    pregunta_1:$('Prepara Config & Filtros1').first().json.pregunta1,\n    resultado1:$('Buscar en Qdrant1').first().json.result[0].payload.nombre,\n    coseno1:$('Buscar en Qdrant1').first().json.result[0].score,\n    pregunta_2: $('Prepara Config & Filtros1').first().json.pregunta2,\n    resultado2:$('Buscar en Qdrant2').first().json.result[0].payload.nombre,\n    coseno2:$('Buscar en Qdrant2').first().json.result[0].score,\n    texto: \"Al buscar con los embeddings, se refiere a los temas mas cercanos creados por los puntos en el qdrant. asi que aunque tenga palabras diferentes, los puntos de qdrant busca los mas parecidos\"\n    \n  }\n}];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2576,
+        2448
+      ],
+      "id": "fb4c671e-bbc5-4ac9-ac00-ff3fa1034e1c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "457f3f23-2204-4542-aade-6145e9bcc85a",
+              "name": "score1",
+              "value": "={{ $json.result[0].score }}",
+              "type": "number"
+            },
+            {
+              "id": "0d80888e-01ca-436e-8e74-7133efa4d2d6",
+              "name": "id1",
+              "value": "={{ $json.result[0].payload.cursoId }}",
+              "type": "string"
+            },
+            {
+              "id": "3685d03c-39b8-43e7-9601-b4342810a5cf",
+              "name": "nombre1",
+              "value": "={{ $json.result[0].payload.nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "2b1e87ab-9c8b-4a83-8f0a-070bee2aef94",
+              "name": "categoria1",
+              "value": "={{ $json.result[0].payload.categoriaNombre }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -3088,
+        2256
+      ],
+      "id": "4fd56944-196c-4983-a1aa-1b723e63c22b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "457f3f23-2204-4542-aade-6145e9bcc85a",
+              "name": "score2",
+              "value": "={{ $json.result[0].score }}",
+              "type": "number"
+            },
+            {
+              "id": "0d80888e-01ca-436e-8e74-7133efa4d2d6",
+              "name": "id2",
+              "value": "={{ $json.result[0].payload.cursoId }}",
+              "type": "string"
+            },
+            {
+              "id": "3685d03c-39b8-43e7-9601-b4342810a5cf",
+              "name": "nombre2",
+              "value": "={{ $json.result[0].payload.nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "2b1e87ab-9c8b-4a83-8f0a-070bee2aef94",
+              "name": "categoria2",
+              "value": "={{ $json.result[0].payload.categoriaNombre }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -3088,
+        2576
+      ],
+      "id": "38801c47-e850-45a4-a447-633c4f8ba127",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2768,
+        2448
+      ],
+      "id": "4dbb04dc-8526-42fb-a7da-1ae2b0a028e7",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Validar Pregunta1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Pregunta1": {
+      "main": [
+        [
+          {
+            "node": "Prepara Config & Filtros1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding Pregunta1": {
+      "main": [
+        [
+          {
+            "node": "Preparar Vector Qdrant2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding Pregunta2": {
+      "main": [
+        [
+          {
+            "node": "Preparar Vector Qdrant1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Vector Qdrant1": {
+      "main": [
+        [
+          {
+            "node": "Buscar en Qdrant1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Vector Qdrant2": {
+      "main": [
+        [
+          {
+            "node": "Buscar en Qdrant2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar en Qdrant1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar en Qdrant2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Config & Filtros1": {
+      "main": [
+        [
+          {
+            "node": "Embedding Pregunta2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Embedding Pregunta1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e178e1de6857b6a7faf535a8b0a74af83d930683d763dd9ee064bf9fcf80faa"
+  }
+}

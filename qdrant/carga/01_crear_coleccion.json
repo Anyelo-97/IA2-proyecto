@@ -47,3 +47,5 @@ PUT collections/cursos/index
   "field_name": "precio",
   "field_schema": "float"
 }
+
+
